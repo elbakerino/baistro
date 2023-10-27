@@ -15,6 +15,7 @@ services:
             SERVICE_NAME: baistro
             SERVICE_NAMESPACE: bai
         volumes:
+            # note: only use the cache mounts for the `dev` image
             - baistro_0_poetry:/root/.cache/pypoetry
             - baistro_0_pip:/root/.cache/pip
             - ./baistro:/app/baistro

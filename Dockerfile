@@ -1,13 +1,13 @@
-FROM python:3.10-slim-bookworm AS builder
+FROM python:3.10-slim-bookworm AS base
 
 ENV PYTHONUNBUFFERED 1
 ARG DEBIAN_FRONTEND=noninteractive
 
-RUN pip install --upgrade pip && pip install -Iv poetry==1.3.2
+RUN pip install --no-cache-dir -Iv poetry==1.3.2
 
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
-    python3-numpy python3-pandas \
+    python3-numpy \
     cargo \
     libssl-dev && \
     apt-get autoremove -y && \
@@ -24,16 +24,18 @@ RUN mkdir libs
 COPY ./README.md README.md
 COPY ./LICENSE LICENSE
 
-FROM builder AS dev
+FROM base AS dev
 
 CMD poetry lock --no-interaction --no-update && poetry install --sync --no-interaction && poetry run flask --app baistro.server:app --debug run --host 0.0.0.0 --port ${PORT}
 
-FROM builder
+FROM base
 
 COPY ./pyproject.toml /app/pyproject.toml
 COPY ./poetry.lock /app/poetry.lock
 
-RUN poetry install --sync --no-dev --no-interaction -E gunicorn
+# todo: using the mount cache increases the image size
+#RUN --mount=type=cache,target=/root/.cache/poetry poetry install --sync --no-dev --no-interaction -E gunicorn
+RUN poetry install --sync --no-dev --no-interaction --no-cache -E gunicorn
 
 COPY ./baistro /app/baistro
 
