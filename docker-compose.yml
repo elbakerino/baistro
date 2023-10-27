@@ -1,0 +1,30 @@
+version: "3.9"
+
+services:
+    baistro:
+        build:
+            context: .
+            dockerfile: Dockerfile
+            target: dev
+        env_file:
+            - ./.env
+        stop_signal: SIGINT
+        environment:
+            PORT: 80
+            APP_ENV: local
+            SERVICE_NAME: baistro
+            SERVICE_NAMESPACE: bai
+        volumes:
+            - baistro_0_poetry:/root/.cache/pypoetry
+            - baistro_0_pip:/root/.cache/pip
+            - ./baistro:/app/baistro
+            - ./model-assets:/app/model-assets
+            - ./shared-assets:/app/shared-assets
+            - ./pyproject.toml:/app/pyproject.toml
+            - ./poetry.lock:/app/poetry.lock
+        ports:
+            - "8702:80"
+
+volumes:
+    baistro_0_poetry:
+    baistro_0_pip:
