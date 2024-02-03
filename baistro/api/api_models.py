@@ -2,7 +2,8 @@ import os
 
 import numpy as np
 from PIL import Image
-from flask import Flask, request
+from apiflask import Schema, fields, APIFlask
+from flask import request
 from sentence_transformers import util
 from torch import Tensor
 
@@ -42,8 +43,21 @@ def get_input(r):
     return r.json['input']
 
 
-def api_models(app: Flask, s: Services):
+def api_models(app: APIFlask, s: Services):
+    class ModelStats(Schema):
+        tasks = fields.List(fields.String())
+        name = fields.String()
+        locale = fields.List(fields.String())
+        url = fields.String()
+        size = fields.Number()
+
+    class ModelsResponse(Schema):
+        total = fields.Number()
+        stats = fields.Dict(fields.String(), fields.Nested(ModelStats()))
+
     @app.route('/models', methods=['GET'])
+    @app.output(ModelsResponse)
+    @app.doc(tags=['Models'])
     def model_list():
         models_stats = {}
 
@@ -60,12 +74,47 @@ def api_models(app: Flask, s: Services):
             'stats': models_stats,
         }
 
+    class InferUsageStats(Schema):
+        stage = fields.String()
+        dur = fields.Number()
+        tokens = fields.Number()
+
+    class InferUsage(Schema):
+        model = fields.String()
+        stats = fields.List(fields.Nested(InferUsageStats()))
+
+    class InferBaseResponse(Schema):
+        _usages = fields.List(fields.Nested(InferUsage()))
+
+    class InferPairsResponse(InferBaseResponse):
+        # todo: should be tuple https://github.com/marshmallow-code/apispec/issues/399
+        # outcome = fields.List(
+        #     fields.Tuple((fields.String(), fields.String())),
+        #     # metadata={'x-widget': 'GenericList'},
+        #     metadata={
+        #         'widget': 'GenericList',
+        #         # 'items': {
+        #         #     'type': 'array',
+        #         #     # when moving `items` inside metadata of `Tuple` the "unhashable type: 'list'" error is thrown
+        #         #     'items': [{'type': 'string'}, {'type': 'string'}],
+        #         # },
+        #     },
+        # )
+        outcome = fields.List(fields.List(fields.String()))
+
+    class InferScoresResponse(InferBaseResponse):
+        outcome = fields.List(fields.Number())
+
     @app.route(f'/{QagEnBaseModel.id}', methods=['POST'])
-    def qag_en_base():
+    @app.input({'input': fields.String()}, schema_name=f'Input{QagEnBaseModel.id}')
+    @app.output(InferPairsResponse())
+    @app.doc(tags=[f'Task: {task}' for task in QagEnBaseModel.tasks])
+    def qag_en_base(json_data):
         infer_res = InferTracker()
         m, tracker = models.get_tracked(QagEnBaseModel.id, infer_res)
 
-        input = request.json['input']
+        # input = request.json['input']
+        input = json_data['input']
 
         on_processed = tracker('infer')
         used_tokens, result = m.generate('generate question and answer: ' + input)
@@ -77,11 +126,17 @@ def api_models(app: Flask, s: Services):
         }
 
     @app.route(f'/{QnliEnBaseModel.id}', methods=['POST'])
-    def qnli_en_base():
+    # todo: tuple seems to be not supported? https://github.com/marshmallow-code/apispec/issues/399
+    # @app.input({'input': fields.List(fields.Tuple((fields.String(), fields.String())))})
+    @app.input({'input': fields.List(fields.List(fields.String()))}, schema_name=f'Input{QnliEnBaseModel.id}')
+    @app.output(InferScoresResponse())
+    @app.doc(tags=[f'Task: {task}' for task in QnliEnBaseModel.tasks])
+    def qnli_en_base(json_data):
         infer_res = InferTracker()
         m, tracker = models.get_tracked(QnliEnBaseModel.id, infer_res)
 
-        input = request.json['input']
+        # input = request.json['input']
+        input = json_data['input']
 
         on_processed = tracker('infer')
         used_tokens, result = m.generate(input)

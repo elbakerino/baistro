@@ -1,5 +1,7 @@
 # baistro · AI APIs
 
+[![Github actions Build](https://github.com/elbakerino/baistro/actions/workflows/blank.yml/badge.svg)](https://github.com/elbakerino/baistro/actions)
+
 Some APIs around AI models.
 
 - CPU only docker setup

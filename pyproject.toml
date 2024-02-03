@@ -23,7 +23,9 @@ smart-open = "^6.3.0"
 accelerate = "^0.20.3"
 sentence-transformers = "^2.2.2"
 stanza = "^1.5.0"
-diffusers = "^0.21.4"
+apiflask = "^2.1.0"
+# todo: check if `diffusers` users is really needed, there shouldn't be any such image model left here
+# diffusers = "^0.21.4"
 torch = [
     # cp310 = python 3.10, cp311 = python 3.11
     { "platform" = 'linux', "python" = "^3.10", "url" = "https://download.pytorch.org/whl/cpu/torch-2.0.1%2Bcpu-cp310-cp310-linux_x86_64.whl" },

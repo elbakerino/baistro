@@ -2,12 +2,15 @@ import signal
 import sys
 import logging
 
+from apiflask import APIFlask, Schema, fields
+from apispec.ext.marshmallow.field_converter import _VALID_PROPERTIES
+
 from baistro._boot import boot
 from baistro.api.api import ai_api
 from baistro.config.config import AppConfig
 
 from baistro.helper import ts
-from flask import Flask, render_template, url_for
+from flask import render_template, url_for
 from flask_cors import CORS
 
 # todo: https://stackoverflow.com/a/16993115/2073149
@@ -15,9 +18,15 @@ logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 pil_logger = logging.getLogger('PIL')
 pil_logger.setLevel(logging.INFO)
 
+_VALID_PROPERTIES.add('widget')
+
 s = boot()
 
-app = Flask(__name__)
+app = APIFlask(
+    __name__,
+    title='baistro',
+    version='0.0.1',
+)
 CORS(app)
 
 
@@ -47,8 +56,13 @@ def route_home():
     return render_template('index.html', version=AppConfig.APP_ENV, links=links)
 
 
+class PingResponse(Schema):
+    now = fields.String()
+
+
 @app.route('/ping')
-def route_api():
+@app.output(PingResponse)
+def route_ping():
     return {
         "now": ts.now_iso(micros=False),
     }
