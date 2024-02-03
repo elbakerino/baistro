@@ -46,11 +46,13 @@ jobs:
                 run: docker login ghcr.io -u ${{ github.actor }} -p ${{ secrets.GITHUB_TOKEN }}
 
             -   name: Build image `api`
+                # todo: inject version/branch into build
                 run: |
                     docker image build -t ghcr.io/elbakerino/baistro -f Dockerfile .
 
             -   name: Publish image `api` as `develop`
                 if: github.ref == 'refs/heads/develop' || startsWith(github.ref, 'refs/heads/feature/')
+                # todo: would images per feature bloat the registry or a good idea? maybe together with a cleanup when closing the feature branch/PR
                 run: |
                     docker tag ghcr.io/elbakerino/baistro ghcr.io/elbakerino/baistro:develop
                     docker push ghcr.io/elbakerino/baistro:develop
