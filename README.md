@@ -62,9 +62,19 @@ poetry install --sync
 # poetry lock --no-update && poetry install --sync
 ```
 
+```shell
+docker compose up
+```
+
+- Service Home: [localhost:8702](http://localhost:8702)
+- OpenAPI Docs: [localhost:8702/docs](http://localhost:8702/docs) (WIP 🚧)
+
 Run in docker container cli:
 
 ```shell
+# build container before using cli (if never `up`ed before)
+docker compose build baistro
+
 docker compose run --rm baistro bash
 poetry run cli
 

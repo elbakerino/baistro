@@ -25,14 +25,19 @@ s = boot()
 app = APIFlask(
     __name__,
     title='baistro',
-    version='0.0.1',
+    version='0.0.2',
 )
 CORS(app)
+
+original_sigint_handler = signal.getsignal(signal.SIGINT)
 
 
 def on_signal(signal_number, frame):
     logging.info(f'shutting down {signal_number}')
-    s.shutdown()
+
+    # needed for flask, calls the org. signal handler but still does not gracefully wait
+    if original_sigint_handler:
+        original_sigint_handler(signal_number, frame)
 
 
 # signal.signal(signal.SIGKILL, on_signal)
