@@ -11,7 +11,7 @@ class DonutToTextModel(ModelBase):
     url = "hugging"
     folder = f'{AppConfig.MODEL_DIR}/model-{name.replace("/", "_").lower()}'
     id = 'donut-to-text'
-    tasks = ['image2text', 'image2data']
+    tasks = ['image2text']
 
     _model = None
     _processor = None

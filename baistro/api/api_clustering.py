@@ -1,17 +1,17 @@
 from typing import List
 import numpy as np
-from flask import Flask, request
-
+from apiflask import APIFlask
+from flask import request
 from sklearn.cluster import AgglomerativeClustering
-
 from baistro._boot import Services
 from baistro.model_control.infer_result import InferTracker
 from baistro.model_control.models import models
 from baistro.models.vector_text import VectorTextModel
 
 
-def api_clustering(app: Flask, s: Services):
+def api_clustering(app: APIFlask, s: Services):
     @app.route(f'/sentence-clusters', methods=['POST'])
+    @app.doc(tags=[f'Task: text-cluster'])
     def sentence_clusters():
         infer_res = InferTracker()
         m, tracker = models.get_tracked(VectorTextModel.id, infer_res)

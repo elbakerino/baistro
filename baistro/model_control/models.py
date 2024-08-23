@@ -5,7 +5,7 @@ from baistro.model_control.infer_result import InferTracker, ModelTracker
 from baistro.model_control.model_base import ModelBase
 from baistro.models.dit_base import DitBaseModel
 from baistro.models.dit_large import DitLargeModel
-from baistro.models.donut_docvqa import DonutDocvqaModel
+# from baistro.models.donut_docvqa import DonutDocvqaModel
 from baistro.models.donut_to_data import DonutToDataModel
 from baistro.models.donut_to_text import DonutToTextModel
 from baistro.models.qag_en_base import QagEnBaseModel
@@ -54,7 +54,7 @@ class Models(object):
 models = Models([
     DitBaseModel,
     DitLargeModel,
-    DonutDocvqaModel,
+    # DonutDocvqaModel,
     DonutToDataModel,
     DonutToTextModel,
     QaEnBaseModel,

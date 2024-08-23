@@ -1,16 +1,16 @@
 from typing import List
-
-from flask import Flask, request
+from apiflask import APIFlask
+from flask import request
 from stanza import Document
 from stanza.models.common.doc import Sentence
-
 from baistro._boot import Services
 from baistro.model_control.infer_result import InferTracker
 from baistro.model_control.stanza_model import stanza_model, SIMPLE_PROCESSORS
 
 
-def api_stanza(app: Flask, s: Services):
+def api_stanza(app: APIFlask, s: Services):
     @app.route(f'/locale-ident', methods=['POST'])
+    @app.doc(tags=[f'NLP'])
     def locale_ident():
         infer_res = InferTracker()
         tracker = infer_res.tracker('stanza-lang_id')
@@ -40,6 +40,7 @@ def api_stanza(app: Flask, s: Services):
         }
 
     @app.route(f'/sentence-segments', methods=['POST'])
+    @app.doc(tags=[f'NLP'])
     def sentence_segments():
         infer_res = InferTracker()
         tracker = infer_res.tracker('stanza-sentence-segments')
@@ -72,6 +73,7 @@ def api_stanza(app: Flask, s: Services):
         }
 
     @app.route(f'/sentence-classifications', methods=['POST'])
+    @app.doc(tags=[f'NLP'])
     def sentence_classifications():
         infer_res = InferTracker()
         tracker = infer_res.tracker('stanza-sentence-classifications')

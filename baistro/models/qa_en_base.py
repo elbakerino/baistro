@@ -36,7 +36,10 @@ class QaEnBaseModel(ModelBase):
         tokens = sum(len(inp_ids) for inp_ids in inputs['input_ids'])
 
         with torch.no_grad():
-            outputs = self.model(**inputs)
+            outputs = self.model(
+                **inputs,
+                # todo: support things like max-output-tokens and alike
+            )
             answer_start_index = outputs.start_logits.argmax()
             answer_end_index = outputs.end_logits.argmax()
             predict_answer_tokens = inputs.input_ids[0, answer_start_index: answer_end_index + 1]

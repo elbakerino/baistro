@@ -1,16 +1,16 @@
 from typing import List
 import numpy as np
-from flask import Flask, request
-
+from apiflask import APIFlask
+from flask import request
 from scipy.sparse import csr_matrix
 from sklearn.feature_extraction.text import CountVectorizer
-
 from baistro._boot import Services
 from baistro.model_control.infer_result import InferTracker
 
 
-def api_sentences(app: Flask, s: Services):
+def api_sentences(app: APIFlask, s: Services):
     @app.route(f'/sentence-word-occurrences', methods=['POST'])
+    @app.doc(tags=[f'Task: text-cluster'])
     def sentence_word_occurrences():
         infer_res = InferTracker()
         tracker = infer_res.tracker('scikit')
