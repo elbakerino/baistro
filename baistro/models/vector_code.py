@@ -1,10 +1,7 @@
-import os
 from typing import Union, List
-
-from sentence_transformers import SentenceTransformer
 from baistro.model_control.model_base import ModelBase
 from baistro.model_control.st_model import SentenceTransformerModelBase
-from baistro.config.config import AppConfig
+from baistro.config.config import AppConfig, SENTENCE_TRANSFORMERS_HOME
 
 
 class VectorCodeModel(ModelBase):
@@ -14,7 +11,8 @@ class VectorCodeModel(ModelBase):
     else:
         name = "flax-sentence-embeddings/st-codesearch-distilroberta-base"
     url = "hugging"
-    folder = f'{os.getenv("SENTENCE_TRANSFORMERS_HOME")}/{name.replace("/", "_")}'
+    folder = f'{SENTENCE_TRANSFORMERS_HOME}/{name.replace("/", "_")}'
+    # folder = f'{os.getenv("SENTENCE_TRANSFORMERS_HOME")}/{name.replace("/", "_")}'
     tasks = ['vector-text', 'vector-code']
     locale = ['en']
 
@@ -32,4 +30,4 @@ class VectorCodeModel(ModelBase):
     @staticmethod
     def download():
         m = VectorCodeModel
-        SentenceTransformer(m.name)
+        SentenceTransformerModelBase(m.name).save(m.folder)

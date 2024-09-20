@@ -114,25 +114,25 @@ def api_vectors(app: APIFlask, s: Services):
     def vector_code__query(json_data):
         return handle_vector_query(VectorCodeModel.id, json_data)
 
-    # todo: APIFlask does not support "json or form with files", either no Input or no File support
-    #       routes should be merged once supported
     @app.route(f'/{VectorImageModel.id}-input', methods=['POST'])
-    # todo: enable `location='json_or_form'` once fixed: https://github.com/apiflask/apiflask/issues/600
-    @app.input(VectorRequest, schema_name=f'VectorRequest')
+    @app.input(VectorRequest, schema_name=f'VectorRequest', location='json_or_form')
     @app.output(VectorResponse())
     @app.doc(tags=[f'{task}' for task in VectorImageModel.tasks])
-    def vector_image_input(json_data):
+    def vector_image_input(json_or_form_data):
         infer_res = InferTracker()
         m, tracker = models.get_tracked(VectorImageModel.id, infer_res)
         on_processed = tracker('infer')
-        used_tokens, vc = m.encode(get_input(json_data))
+        used_tokens, vc = m.encode(get_input(json_or_form_data))
         on_processed(tokens=used_tokens)
         return {
             '_usages': infer_res.usages,
             'embeddings': vc.numpy().tolist() if isinstance(vc, Tensor) else vc.astype(np.float32).tolist(),
         }
 
+    # todo: APIFlask does not support "json or form with files", either no Input or no File support
+    #       routes should be merged once supported https://github.com/apiflask/apiflask/issues/603
     @app.route(f'/{VectorImageModel.id}', methods=['POST'])
+    # @app.input(VectorFileRequest, schema_name=f'VectorFileRequest', location='json_or_form_and_files')
     @app.input(VectorFileRequest, schema_name=f'VectorFileRequest', location='form_and_files')
     @app.output(VectorResponse())
     @app.doc(tags=[f'{task}' for task in VectorImageModel.tasks])

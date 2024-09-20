@@ -54,13 +54,9 @@ Some APIs around AI models.
 - *WIP* Sentence Clustering
 - *todo* Topic Clustering (by [BERTopic](https://maartengr.github.io/BERTopic/))
 
-## DEV Notes
+## Usage
 
-```shell
-poetry lock --no-update
-poetry install --sync
-# poetry lock --no-update && poetry install --sync
-```
+Startup server:
 
 ```shell
 docker compose up
@@ -69,15 +65,40 @@ docker compose up
 - Service Home: [localhost:8702](http://localhost:8702)
 - OpenAPI Docs: [localhost:8702/docs](http://localhost:8702/docs) (WIP 🚧)
 
-Run in docker container cli:
+Run CLI in docker container:
 
 ```shell
 # build container before using cli (if never `up`ed before)
 docker compose build baistro
 
+# open shell in container:
 docker compose run --rm baistro bash
+
+# run cli help:
 poetry run cli
 
 # download models:
 poetry run cli download
+
+# download model `stanza-multilingual` directly:
+poetry run cli download stanza-multilingual
+
+# list models:
+poetry run cli models
 ```
+
+## DEV Notes
+
+Manage dependencies with poetry:
+
+```shell
+poetry lock --no-update
+poetry install --sync
+# poetry lock --no-update && poetry install --sync
+```
+
+## License
+
+This project is distributed as **free software** under the **MIT License**, see [License](https://github.com/elbakerino/baistro/blob/main/LICENSE).
+
+© 2024 Michael Becker https://i-am-digital.eu

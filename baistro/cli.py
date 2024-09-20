@@ -21,13 +21,4 @@ def cli(ctx):
         logging.info(f'shutdown')
         s.shutdown()
 
-
-@cli.command()
-@click.option('--count', default=1, help='Number of greetings.')
-@click.option('--name', prompt=True)
-def hello(count, name):
-    for _ in range(count):
-        click.echo(f'Hello, {name}!')
-
-
 cli_model(cli, s)

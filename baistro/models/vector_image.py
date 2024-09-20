@@ -1,11 +1,8 @@
-import os
 from typing import Union, List
-
 from PIL.Image import Image
-from sentence_transformers import SentenceTransformer
 from baistro.model_control.model_base import ModelBase
 from baistro.model_control.st_model import SentenceTransformerModelBase
-from baistro.config.config import AppConfig
+from baistro.config.config import AppConfig, SENTENCE_TRANSFORMERS_HOME
 
 
 class VectorImageModel(ModelBase):
@@ -15,7 +12,8 @@ class VectorImageModel(ModelBase):
     else:
         name = "sentence-transformers/clip-ViT-B-32"
     url = "hugging"
-    folder = f'{os.getenv("SENTENCE_TRANSFORMERS_HOME")}/{name.replace("/", "_")}'
+    folder = f'{SENTENCE_TRANSFORMERS_HOME}/{name.replace("/", "_")}'
+    # folder = f'{os.getenv("SENTENCE_TRANSFORMERS_HOME")}/{name.replace("/", "_")}'
     tasks = ['vector-text', 'vector-image']
     locale = ['en']
 
@@ -33,4 +31,4 @@ class VectorImageModel(ModelBase):
     @staticmethod
     def download():
         m = VectorImageModel
-        SentenceTransformer(m.name)
+        SentenceTransformerModelBase(m.name).save(m.folder)

@@ -47,7 +47,6 @@ class StanzaModelCache(object):
                 if cache_id not in self.pipelines:
                     self.pipelines[cache_id] = stanza.Pipeline(
                         locale,
-                        processors=StanzaModelCache.processor_maps[locale],
                         dir=self.model_dir,
                         download_method=None,
                         verbose=False,

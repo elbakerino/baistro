@@ -16,7 +16,7 @@ class SentenceTransformerModelBase(SentenceTransformer):
         normalize_embeddings: bool = False,
         convert_to_numpy: bool = False,
     ):
-        device = self._target_device
+        device = self.device
         tokens = 0
 
         input_was_string = False

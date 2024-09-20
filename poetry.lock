@@ -140,13 +140,13 @@ frozenlist = ">=1.1.0"
 
 [[package]]
 name = "apiflask"
-version = "2.2.0"
+version = "2.2.1"
 description = "A lightweight web API framework based on Flask and marshmallow-code projects."
 optional = false
 python-versions = "*"
 files = [
-    {file = "APIFlask-2.2.0-py3-none-any.whl", hash = "sha256:dd0dc111538c7f284c09a01d90aaf04f1e716ba116886d5a3aa5b1ffa4cce2f4"},
-    {file = "apiflask-2.2.0.tar.gz", hash = "sha256:17fc4d4e852a483c51e4c98f158113f00b41258de22ae323397766bd99335206"},
+    {file = "APIFlask-2.2.1-py3-none-any.whl", hash = "sha256:31619542dae6c7b86ca0cd0b1277ccaad68e99b69dfef201791b814432d26965"},
+    {file = "apiflask-2.2.1.tar.gz", hash = "sha256:9c7573fedbb75524396c5733d4b0c150d1839a5d52b905c15b6a36e030c44908"},
 ]
 
 [package.dependencies]
@@ -2824,4 +2824,4 @@ gunicorn = ["gunicorn"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.10"
-content-hash = "cdc5688ec73418948a1b870dc932aa49c1c590e4ac0d988ef4ac8714152bebc1"
+content-hash = "5d15859addd273e5e8d812ebcbc11b7deab49752e9f804f527ca4722c683fded"

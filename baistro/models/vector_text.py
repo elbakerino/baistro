@@ -1,7 +1,5 @@
-import os
 from typing import Union, List
-from sentence_transformers import SentenceTransformer
-from baistro.config.config import AppConfig
+from baistro.config.config import AppConfig, SENTENCE_TRANSFORMERS_HOME
 from baistro.model_control.model_base import ModelBase
 from baistro.model_control.st_model import SentenceTransformerModelBase
 
@@ -14,7 +12,8 @@ class VectorTextModel(ModelBase):
     else:
         name = "sentence-transformers/all-distilroberta-v1"
     url = "hugging"
-    folder = f'{os.getenv("SENTENCE_TRANSFORMERS_HOME")}/{name.replace("/", "_")}'
+    folder = f'{SENTENCE_TRANSFORMERS_HOME}/{name.replace("/", "_")}'
+    # folder = f'{os.getenv("SENTENCE_TRANSFORMERS_HOME")}/{name.replace("/", "_")}'
     tasks = ['vector-text']
 
     _model = None
@@ -34,4 +33,4 @@ class VectorTextModel(ModelBase):
     @staticmethod
     def download():
         m = VectorTextModel
-        SentenceTransformer(m.name)
+        SentenceTransformerModelBase(m.name).save(m.folder)

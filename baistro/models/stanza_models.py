@@ -1,7 +1,6 @@
 import os
-
+from typing import Union, List
 import stanza
-
 from baistro.model_control.model_base import ModelBase
 from baistro.model_control.stanza_model import StanzaModelCache
 
@@ -15,7 +14,7 @@ def stanza_download(locale: str):
     )
 
 
-def define_stanza_model(model_locale: str, model_tasks=None):
+def define_stanza_model(model_locale: str, model_tasks: Union[List[str], None] = None):
     # only used for stats/download, as rest is handled by `StanzaModelCache`
     class StanzaModel(ModelBase):
         name = 'stanza-' + model_locale
@@ -26,7 +25,7 @@ def define_stanza_model(model_locale: str, model_tasks=None):
         tasks = model_tasks if model_tasks else [
             'sequence-classification',
             'token-classification',
-            'pos', 'ner', 'sentiment',
+            'pos', 'ner',
         ]
 
         @staticmethod
@@ -38,8 +37,27 @@ def define_stanza_model(model_locale: str, model_tasks=None):
 
 StanzaMultiModel = define_stanza_model('multilingual', ['locale-identification'])
 # todo: find a way to dynamize this
-StanzaDeModel = define_stanza_model('de')
-StanzaEnModel = define_stanza_model('en')
+StanzaBgModel = define_stanza_model('bg')
+StanzaDaModel = define_stanza_model('da')
+StanzaDeModel = define_stanza_model('de', [
+    'sequence-classification',
+    'token-classification',
+    'pos', 'ner',
+    'sentiment',
+])
+StanzaEnModel = define_stanza_model('en', [
+    'sequence-classification',
+    'token-classification',
+    'pos', 'ner',
+    'sentiment',
+])
 StanzaEsModel = define_stanza_model('es')
+StanzaFiModel = define_stanza_model('fi')
 StanzaFrModel = define_stanza_model('fr')
+StanzaHuModel = define_stanza_model('hu')
 StanzaItModel = define_stanza_model('it')
+StanzaJaModel = define_stanza_model('ja')
+StanzaNlModel = define_stanza_model('nl')
+StanzaNnModel = define_stanza_model('nn')
+StanzaPlModel = define_stanza_model('pl')
+StanzaSvModel = define_stanza_model('sv')

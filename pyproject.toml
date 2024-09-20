@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "baistro"
-version = "0.0.2"
+version = "0.0.3"
 description = "baistro - AI as API"
 authors = ["Michael Becker <michael@bemit.codes>"]
 license = "MIT"
@@ -21,9 +21,9 @@ datasets = "^2.11.0"
 sentencepiece = "^0.1.98"
 smart-open = "^6.3.0"
 accelerate = "^0.20.3"
-sentence-transformers = "^2.2.2"
-stanza = "^1.5.0"
-apiflask = "^2.2.0"
+sentence-transformers = "^2.3.1"
+stanza = "^1.7.0"
+apiflask = "^2.2.1"
 # todo: check if `diffusers` users is really needed, there shouldn't be any such image model left here
 # diffusers = "^0.21.4"
 torch = [

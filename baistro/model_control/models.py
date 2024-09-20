@@ -1,6 +1,5 @@
 import threading
 from typing import List, Tuple
-
 from baistro.model_control.infer_result import InferTracker, ModelTracker
 from baistro.model_control.model_base import ModelBase
 from baistro.models.dit_base import DitBaseModel
@@ -11,9 +10,12 @@ from baistro.models.donut_to_text import DonutToTextModel
 from baistro.models.qag_en_base import QagEnBaseModel
 from baistro.models.qnli_en_base import QnliEnBaseModel
 from baistro.models.stanza_models import \
-    StanzaMultiModel, \
-    StanzaEnModel, StanzaDeModel, \
-    StanzaEsModel, StanzaFrModel, StanzaItModel
+    (StanzaMultiModel,
+     StanzaBgModel, StanzaDaModel, StanzaDeModel,
+     StanzaEnModel, StanzaEsModel, StanzaFiModel,
+     StanzaFrModel, StanzaHuModel, StanzaItModel,
+     StanzaJaModel, StanzaNlModel, StanzaNnModel,
+     StanzaPlModel, StanzaSvModel)
 from baistro.models.vector_code import VectorCodeModel
 from baistro.models.vector_image import VectorImageModel
 from baistro.models.vector_text import VectorTextModel
@@ -30,8 +32,11 @@ class Models(object):
     def list(self) -> List[type(ModelBase)]:
         return [m for m in self.model_classes.values()]
 
+    def has(self, model_id) -> type(ModelBase):
+        return model_id in self.model_classes
+
     def get_type(self, model_id) -> type(ModelBase):
-        if model_id not in self.model_classes:
+        if not self.has(model_id):
             raise ValueError(f'can not get type for unknown model {model_id}')
         return self.model_classes[model_id]
 
@@ -62,11 +67,20 @@ models = Models([
     QagEnBaseModel,
     QnliEnBaseModel,
     StanzaMultiModel,
-    StanzaEnModel,
+    StanzaBgModel,
+    StanzaDaModel,
     StanzaDeModel,
+    StanzaEnModel,
     StanzaEsModel,
+    StanzaFiModel,
     StanzaFrModel,
+    StanzaHuModel,
     StanzaItModel,
+    StanzaJaModel,
+    StanzaNlModel,
+    StanzaNnModel,
+    StanzaPlModel,
+    StanzaSvModel,
     VectorCodeModel,
     VectorTextModel,
     VectorImageModel,
