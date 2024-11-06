@@ -25,7 +25,7 @@ s = boot()
 app = APIFlask(
     __name__,
     title='baistro',
-    version='0.0.3',
+    version='0.0.4',
 )
 CORS(app)
 

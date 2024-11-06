@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "baistro"
-version = "0.0.3"
+version = "0.0.4"
 description = "baistro - AI as API"
 authors = ["Michael Becker <michael@bemit.codes>"]
 license = "MIT"
