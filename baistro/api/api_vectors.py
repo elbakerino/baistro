@@ -72,8 +72,9 @@ def api_vectors(app: APIFlask, s: Services):
         }
 
     # todo: merge batch endpoints or find another solution, there is no native Union field in APIFlask
+    #       note: even if found a solution for `.input`, the `.output` is still dumbed by schema
     @app.route(f'/{VectorTextModel.id}', methods=['POST'])
-    @app.input(VectorOneOrManyRequest, schema_name=f'VectorOneOrManyRequest')
+    @app.input(VectorRequest, schema_name=f'VectorRequest')
     @app.output(VectorResponse())
     @app.doc(tags=[f'{task}' for task in VectorTextModel.tasks])
     def vector_text(json_data):
@@ -94,7 +95,7 @@ def api_vectors(app: APIFlask, s: Services):
         return handle_vector_query(VectorTextModel.id, json_data)
 
     @app.route(f'/{VectorCodeModel.id}', methods=['POST'])
-    @app.input(VectorOneOrManyRequest, schema_name=f'VectorOneOrManyRequest')
+    @app.input(VectorRequest, schema_name=f'VectorRequest')
     @app.output(VectorResponse())
     @app.doc(tags=[f'{task}' for task in VectorCodeModel.tasks])
     def vector_code(json_data):

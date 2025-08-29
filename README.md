@@ -89,12 +89,14 @@ poetry run cli models
 
 ## DEV Notes
 
-Manage dependencies with poetry:
+Manage dependencies with [poetry v2](https://python-poetry.org/):
 
 ```shell
-poetry lock --no-update
-poetry install --sync
-# poetry lock --no-update && poetry install --sync
+poetry lock
+poetry sync --no-root
+poetry install
+
+# poetry lock && poetry sync --no-root && poetry install
 ```
 
 ## License

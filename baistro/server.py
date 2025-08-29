@@ -29,6 +29,8 @@ app = APIFlask(
     version='0.1.0',
     docs_ui=AppConfig.API_DOCS_UI,
 )
+app.config['OPENAPI_VERSION'] = '3.1.0'
+
 CORS(
     app,
     origins=AppConfig.CORS_ORIGINS,

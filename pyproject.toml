@@ -5,6 +5,7 @@ description = "baistro - AI as API"
 authors = ["Michael Becker <michael@bemit.codes>"]
 license = "MIT"
 readme = "README.md"
+package-mode = false
 
 [tool.poetry.scripts]
 cli = "baistro.cli:cli"
