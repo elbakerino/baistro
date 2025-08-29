@@ -3,7 +3,7 @@ from PIL import Image
 from apiflask import APIFlask
 from sentence_transformers import util
 from torch import Tensor
-from baistro.api.schemas import VectorResponse, VectorQueryResponse, VectorRequest, VectorFileRequest, VectorQueryRequest, VectorBatchResponse, VectorBatchRequest
+from baistro.api.schemas import VectorResponse, VectorQueryResponse, VectorRequest, VectorFileRequest, VectorQueryRequest, VectorBatchResponse, VectorBatchRequest, VectorOneOrManyRequest
 from baistro._boot import Services
 from baistro.model_control.infer_result import InferTracker
 from baistro.model_control.models import models
@@ -73,7 +73,7 @@ def api_vectors(app: APIFlask, s: Services):
 
     # todo: merge batch endpoints or find another solution, there is no native Union field in APIFlask
     @app.route(f'/{VectorTextModel.id}', methods=['POST'])
-    @app.input(VectorRequest, schema_name=f'VectorRequest')
+    @app.input(VectorOneOrManyRequest, schema_name=f'VectorOneOrManyRequest')
     @app.output(VectorResponse())
     @app.doc(tags=[f'{task}' for task in VectorTextModel.tasks])
     def vector_text(json_data):
@@ -94,14 +94,14 @@ def api_vectors(app: APIFlask, s: Services):
         return handle_vector_query(VectorTextModel.id, json_data)
 
     @app.route(f'/{VectorCodeModel.id}', methods=['POST'])
-    @app.input(VectorRequest, schema_name=f'VectorRequest')
+    @app.input(VectorOneOrManyRequest, schema_name=f'VectorOneOrManyRequest')
     @app.output(VectorResponse())
     @app.doc(tags=[f'{task}' for task in VectorCodeModel.tasks])
     def vector_code(json_data):
         return handle_vector(VectorCodeModel.id, json_data)
 
     @app.route(f'/{VectorCodeModel.id}-batch', methods=['POST'])
-    @app.input(VectorBatchRequest, schema_name=f'VectorRequest')
+    @app.input(VectorBatchRequest, schema_name=f'VectorBatchRequest')
     @app.output(VectorBatchResponse())
     @app.doc(tags=[f'{task}' for task in VectorCodeModel.tasks])
     def vector_code_batch(json_data):

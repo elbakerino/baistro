@@ -2,13 +2,18 @@ import os
 from typing import Union, List
 import stanza
 from baistro.model_control.model_base import ModelBase
-from baistro.model_control.stanza_model import StanzaModelCache
+
+processor_maps = {
+    'multilingual': 'langid',
+    'en': 'tokenize,pos,mwt,ner,lemma,depparse,sentiment,constituency',
+    'de': 'tokenize,pos,mwt,ner,lemma,depparse,sentiment,constituency',
+}
 
 
 def stanza_download(locale: str):
     stanza.download(
         locale,
-        processors=StanzaModelCache.processor_maps[locale],
+        processors=processor_maps[locale],
         model_dir=os.getenv("STANZA_RESOURCES_DIR"),
         logging_level='INFO',
     )

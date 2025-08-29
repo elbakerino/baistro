@@ -1,22 +1,120 @@
 from typing import List
-from apiflask import APIFlask
-from flask import request
+from apiflask import APIFlask, fields, Schema
 from stanza import Document
 from stanza.models.common.doc import Sentence
 from baistro._boot import Services
+from baistro.api.schemas import InferBaseResponse, StringOrList
 from baistro.model_control.infer_result import InferTracker
 from baistro.model_control.stanza_model import stanza_model, SIMPLE_PROCESSORS
 
 
+class LocaleIdentOutcome(Schema):
+    locale = fields.String()
+
+
+class LocaleIdentResponse(InferBaseResponse):
+    outcome = fields.Nested(LocaleIdentOutcome())
+
+
+class LocaleIdentRequestOptions(Schema):
+    possible_locales = fields.List(
+        fields.String(),
+        metadata={
+            'default': ['en'],
+            'description': 'List of possible locales to identify. If empty, all supported locales are used.'
+        },
+    )
+    clean_text = fields.Boolean(metadata={
+        'default': False,
+        'description': 'Whether to clean the text before language identification.'
+    })
+
+
+class LocaleIdentRequest(Schema):
+    input = fields.String(required=True)
+    options = fields.Nested(LocaleIdentRequestOptions())
+
+
+class SentenceAnalysisRequestOptions(Schema):
+    no_ssplit = fields.Boolean(metadata={'default': True})
+    processors = StringOrList(
+        metadata={
+            'default': 'lemma',
+            'description':
+                f"""
+See [Stanza Pipeline documentation](https://stanfordnlp.github.io/stanza/pipeline.html#processors).
+
+Either specify the full processors separated with comma or as an array - or use a short id for common processor pipelines.
+
+Supported short ids:
+""" + '\n'.join([f"- `{k}`: `{v}`" for k, v in SIMPLE_PROCESSORS.items()])
+        }
+    )
+    include_plain_words = fields.Boolean(metadata={'default': False})
+    include_comments = fields.Boolean(metadata={'default': False})
+    include_sentence_entities = fields.Boolean(metadata={'default': False})
+    include_doc_entities = fields.Boolean(metadata={'default': False})
+
+
+class SentenceAnalysisRequestAttributes(Schema):
+    locale = fields.String(metadata={'default': 'en'})
+
+
+class SentenceAnalysisRequest(Schema):
+    # todo: the input supports more, that was the reason for no openapi - as it doesn't support UNION
+    # input = fields.String(required=True)
+    input = StringOrList(
+        required=True,
+        metadata={
+            'description': 'Input text to be analyzed. Can be a single string or a list of strings. If a list of strings is provided, each string is treated as a separate sentence, requires `no_ssplit` to be `true`.',
+        },
+    )
+    # input = fields.Nested(validate=validators.OneOf([
+    #     fields.String(),
+    #     fields.List(fields.String()),
+    # ]))
+    options = fields.Nested(SentenceAnalysisRequestOptions())
+    attributes = fields.Nested(SentenceAnalysisRequestAttributes())
+
+
+class SentenceSegmentsAnalysisOutcome(Schema):
+    sentence_pieces = fields.List(fields.String())
+
+
+class SentenceSegmentsAnalysisResponse(InferBaseResponse):
+    outcome = fields.Nested(SentenceSegmentsAnalysisOutcome())
+
+
+class SentencePieceSchema(Schema):
+    sentiment = fields.Integer()
+    sentiment_name = fields.String()
+    mwt_tokens = fields.List(fields.Dict())
+    tokens = fields.List(fields.Dict())
+    plain_words = fields.List(fields.Dict())
+    comments = fields.List(fields.String())
+    entities = fields.List(fields.Dict())
+
+
+class SentenceClassificationAnalysisOutcome(Schema):
+    sentences = fields.List(fields.Nested(SentencePieceSchema()))
+    entities = fields.List(fields.Dict())
+
+
+class SentenceClassificationAnalysisResponse(InferBaseResponse):
+    outcome = fields.Nested(SentenceClassificationAnalysisOutcome())
+
+
 def api_stanza(app: APIFlask, s: Services):
     @app.route(f'/locale-ident', methods=['POST'])
+    @app.input(LocaleIdentRequest, location='json_or_form')
+    @app.output(LocaleIdentResponse())
     @app.doc(tags=[f'NLP'])
-    def locale_ident():
+    def locale_ident(json_or_form_data):
         infer_res = InferTracker()
         tracker = infer_res.tracker('stanza-lang_id')
 
-        options = request.json.get('options', {})
-        input = request.json['input']
+        options = json_or_form_data.get('options', {})
+        input = json_or_form_data['input']
 
         possible_locales: List[str] = options.get('possible_locales', None)
         clean_text: bool = options.get('clean_text', False)
@@ -40,14 +138,16 @@ def api_stanza(app: APIFlask, s: Services):
         }
 
     @app.route(f'/sentence-segments', methods=['POST'])
+    @app.input(SentenceAnalysisRequest, location='json_or_form')
+    @app.output(SentenceSegmentsAnalysisResponse())
     @app.doc(tags=[f'NLP'])
-    def sentence_segments():
+    def sentence_segments(json_or_form_data):
         infer_res = InferTracker()
         tracker = infer_res.tracker('stanza-sentence-segments')
 
-        attributes = request.json.get('attributes', {})
-        options = request.json.get('options', {})
-        input = request.json['input']
+        attributes = json_or_form_data.get('attributes', {})
+        options = json_or_form_data.get('options', {})
+        input = json_or_form_data['input']
 
         locale = attributes.get('locale', 'en')
         no_ssplit = options.get('no_ssplit', True)
@@ -73,14 +173,16 @@ def api_stanza(app: APIFlask, s: Services):
         }
 
     @app.route(f'/sentence-classifications', methods=['POST'])
+    @app.input(SentenceAnalysisRequest, location='json_or_form')
+    @app.output(SentenceClassificationAnalysisResponse())
     @app.doc(tags=[f'NLP'])
-    def sentence_classifications():
+    def sentence_classifications(json_or_form_data):
         infer_res = InferTracker()
         tracker = infer_res.tracker('stanza-sentence-classifications')
 
-        attributes = request.json.get('attributes', {})
-        options = request.json.get('options', {})
-        input = request.json['input']
+        attributes = json_or_form_data.get('attributes', {})
+        options = json_or_form_data.get('options', {})
+        input = json_or_form_data['input']
 
         locale = attributes.get('locale', 'en')
         no_ssplit = options.get('no_ssplit', True)
@@ -101,7 +203,11 @@ def api_stanza(app: APIFlask, s: Services):
 
         on_processed = tracker('infer')
         doc: Document = pipe(
-            input if isinstance(input, str) else '\n'.join([' '.join([t['text'] for t in sent['tokens']]) for sent in input]),
+            # todo: this was to re-parse tokenized parts, but this added incorrect whitespaces of course,
+            #       this could be provided with a re mapping to documents, if that's possible.
+            #       for now, the openapi request body supports a list of sentences instead.
+            # input if isinstance(input, str) else '\n'.join([' '.join([t['text'] for t in sent['tokens']]) for sent in input]),
+            input,
             processors=processors,
         )
         on_processed(tokens=doc.num_tokens)

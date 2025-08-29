@@ -18,12 +18,6 @@ SIMPLE_PROCESSORS = {
 
 
 class StanzaModelCache(object):
-    processor_maps = {
-        'multilingual': 'langid',
-        'en': 'tokenize,pos,mwt,ner,lemma,depparse,sentiment,constituency',
-        'de': 'tokenize,pos,mwt,ner,lemma,depparse,sentiment',
-    }
-
     def __init__(self, model_dir: str):
         self.model_dir = model_dir
         self.pipelines = {}

@@ -1,6 +1,7 @@
 import signal
 import sys
 import logging
+from pathlib import Path
 
 from apiflask import APIFlask, Schema, fields
 from apispec.ext.marshmallow.field_converter import _VALID_PROPERTIES
@@ -25,16 +26,19 @@ s = boot()
 app = APIFlask(
     __name__,
     title='baistro',
-    version='0.0.4',
+    version='0.1.0',
+    docs_ui=AppConfig.API_DOCS_UI,
 )
-CORS(app)
+CORS(
+    app,
+    origins=AppConfig.CORS_ORIGINS,
+    send_wildcard=AppConfig.CORS_SEND_WILDCARD,
+)
 
 original_sigint_handler = signal.getsignal(signal.SIGINT)
 
 
 def on_signal(signal_number, frame):
-    logging.info(f'shutting down {signal_number}')
-
     # needed for flask, calls the org. signal handler but still does not gracefully wait
     if original_sigint_handler:
         original_sigint_handler(signal_number, frame)
@@ -43,6 +47,8 @@ def on_signal(signal_number, frame):
 # signal.signal(signal.SIGKILL, on_signal)
 signal.signal(signal.SIGTERM, on_signal)
 signal.signal(signal.SIGINT, on_signal)
+
+CSS_CONTENT = (Path(app.root_path) / "templates" / "main-dark.css").read_text(encoding="utf-8")
 
 
 @app.route('/')
@@ -58,7 +64,13 @@ def route_home():
         if 'OPTIONS' in methods:
             methods.remove('OPTIONS')
         links.append((url, list(methods), rule.endpoint, rule.arguments, rule.defaults))
-    return render_template('index.html', version=AppConfig.APP_ENV, links=links)
+
+    return render_template(
+        'index.html',
+        version=AppConfig.APP_ENV,
+        links=links,
+        css=CSS_CONTENT
+    )
 
 
 class PingResponse(Schema):

@@ -1,4 +1,30 @@
 from apiflask import Schema, fields
+from marshmallow import ValidationError
+
+
+class StringOrList(fields.Field):
+    def __init__(self, **kwargs):
+        metadata = {
+            'type': ['string', 'array'],
+            'items': {'type': 'string'},
+        }
+
+        if 'metadata' in kwargs:
+            kwargs['metadata'] = {**metadata, **kwargs['metadata']}
+        else:
+            kwargs['metadata'] = metadata
+
+        super().__init__(**kwargs)
+
+    def _deserialize(self, value, attr, data, **kwargs):
+        if isinstance(value, str):
+            return value
+        elif isinstance(value, list) and all(isinstance(i, str) for i in value):
+            return value
+        raise ValidationError("Must be a string or a list of strings")
+
+    def _serialize(self, value, attr, obj, **kwargs):
+        return value
 
 
 class ModelStats(Schema):
@@ -54,12 +80,21 @@ class VectorRequest(Schema):
     input = fields.String()
 
 
+class VectorOneOrManyRequest(Schema):
+    input = StringOrList()
+
+
 class VectorBatchRequest(Schema):
     input = fields.List(fields.String())
 
 
+class VectorQueryOptions(Schema):
+    top = fields.Integer(metadata={'example': 3})
+    min_score = fields.Float(metadata={'default': 0.1})
+
+
 class VectorQueryRequest(Schema):
-    options = fields.Dict()
+    options = fields.Nested(VectorQueryOptions())
     # todo: implement batch query, if not just broken with schema
     query = fields.String()
     context = fields.List(fields.String())
