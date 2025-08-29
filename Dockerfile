@@ -1,10 +1,21 @@
 FROM python:3.10-slim-bookworm AS base
 
+ARG VCS_REF
+ARG VCS_URL
+ARG CI_RUN_URL
+ARG BUILD_DATE
+ARG VERSION
+
 LABEL org.opencontainers.image.source="https://github.com/elbakerino/baistro"
 LABEL org.opencontainers.image.authors="Michael Becker, https://i-am-digital.eu"
 LABEL org.opencontainers.image.title="baistro"
 LABEL org.opencontainers.image.version="0.1.0"
 LABEL org.opencontainers.image.licenses="MIT"
+LABEL org.opencontainers.image.source=$VCS_URL
+LABEL org.opencontainers.image.revision=$VCS_REF
+LABEL org.opencontainers.image.url=$CI_RUN_URL
+LABEL org.opencontainers.image.created=$BUILD_DATE
+LABEL org.opencontainers.image.version=$VERSION
 
 ENV PYTHONUNBUFFERED=1
 # note: let's try adding the bytecode. the con-arguments are somewhat fuzzy and not backed by arguments

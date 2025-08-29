@@ -28,19 +28,19 @@ jobs:
             -   uses: actions/checkout@v3
             -   name: Set Branch
                 id: short_ref
-                run: echo ::set-output name=short_ref::${GITHUB_REF#refs/*/}
+                run: echo "short_ref=${GITHUB_REF#refs/*/}" >> $GITHUB_OUTPUT
             -   name: Set git_url_commit
                 id: git_url_commit
-                run: echo ::set-output name=git_url_commit::${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/commit/${GITHUB_SHA}
+                run: echo "git_url_commit=${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/commit/${GITHUB_SHA}" >> $GITHUB_OUTPUT
             -   name: Set git_url_ci_run
                 id: git_url_ci_run
-                run: echo ::set-output name=git_url_ci_run::${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}
+                run: echo "git_url_ci_run=${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}" >> $GITHUB_OUTPUT
             -   name: Set git_commit
                 id: git_commit
-                run: echo ::set-output name=git_commit::${GITHUB_REPOSITORY}/${GITHUB_SHA}
+                run: echo "git_commit=${GITHUB_REPOSITORY}/${GITHUB_SHA}" >> $GITHUB_OUTPUT
             -   name: Set git_ci_run
                 id: git_ci_run
-                run: echo ::set-output name=git_ci_run::${GITHUB_REPOSITORY}/${GITHUB_RUN_ID}
+                run: echo "git_ci_run=${GITHUB_REPOSITORY}/${GITHUB_RUN_ID}" >> $GITHUB_OUTPUT
 
             -   name: Docker Registry login
                 run: docker login ghcr.io -u ${{ github.actor }} -p ${{ secrets.GITHUB_TOKEN }}
@@ -48,7 +48,13 @@ jobs:
             -   name: Build image `api`
                 # todo: inject version/branch into build
                 run: |
-                    docker image build -t ghcr.io/elbakerino/baistro -f Dockerfile .
+                    docker image build  \
+                        --build-arg VCS_REF=${GITHUB_SHA} \
+                        --build-arg VCS_URL=${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY} \
+                        --build-arg CI_RUN_URL=${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID} \
+                        --build-arg BUILD_DATE=$(date -u +'%Y-%m-%dT%H:%M:%SZ') \
+                        --build-arg VERSION=${{ steps.short_ref.outputs.short_ref }} \
+                        -t ghcr.io/elbakerino/baistro -f Dockerfile .
 
             -   name: Publish image `api` as `develop`
                 if: github.ref == 'refs/heads/develop' || startsWith(github.ref, 'refs/heads/feature/')
