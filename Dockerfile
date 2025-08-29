@@ -64,7 +64,8 @@ COPY ./poetry.lock /app/poetry.lock
 
 # todo: using the mount cache increases the image size
 #RUN --mount=type=cache,target=/root/.cache/poetry poetry install --sync --no-dev --no-interaction -E gunicorn
-RUN poetry sync --without dev -E gunicorn --no-cache --no-root --no-interaction --compile
+RUN poetry sync --without dev -E gunicorn --no-cache --no-root --no-interaction \
+#--compile
 
 COPY ./baistro /app/baistro
 
