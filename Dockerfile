@@ -46,11 +46,6 @@ ENV PATH="/root/.cargo/bin:${PATH}"
 
 WORKDIR /app
 
-RUN mkdir libs
-
-COPY ./README.md README.md
-COPY ./LICENSE LICENSE
-
 FROM base AS dev
 
 # note: with `poetry sync`/`--sync` lead to `poetry not found` error; WHEN `POETRY_VIRTUALENVS_CREATE=false` is set
@@ -86,7 +81,13 @@ WORKDIR /app
 COPY --from=builder /usr/local/lib/python3.12/site-packages /usr/local/lib/python3.12/site-packages
 COPY --from=builder /usr/local/bin /usr/local/bin
 
+COPY ./pyproject.toml /app/pyproject.toml
+COPY ./poetry.lock /app/poetry.lock
+
 COPY ./baistro /app/baistro
+
+COPY ./README.md README.md
+COPY ./LICENSE LICENSE
 
 ENV GUN_W 2
 
