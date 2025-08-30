@@ -1,13 +1,25 @@
+import logging
 from typing import Union, List
-
 import numpy as np
 import torch
 from sentence_transformers import SentenceTransformer
 from sentence_transformers.util import batch_to_device
 from tqdm import trange
 
+logger = logging.getLogger(__name__)
 
-class SentenceTransformerModelBase(SentenceTransformer):
+
+class SentenceTransformerModelBase:
+
+    def __init__(
+        self,
+        model_name_or_path: str | None = None
+    ):
+        self.transformer = SentenceTransformer(model_name_or_path, local_files_only=True)
+
+    def save(self, path: str):
+        return self.transformer.save(path)
+
     # a modified `encode`, with added tokens stats
     def encode_with_stats(
         self, sentences: Union[List[str], str],
@@ -16,7 +28,7 @@ class SentenceTransformerModelBase(SentenceTransformer):
         normalize_embeddings: bool = False,
         convert_to_numpy: bool = False,
     ):
-        device = self.device
+        device = self.transformer.device
         tokens = 0
 
         input_was_string = False
@@ -25,12 +37,12 @@ class SentenceTransformerModelBase(SentenceTransformer):
             input_was_string = True
 
         all_embeddings = []
-        length_sorted_idx = np.argsort([-self._text_length(sen) for sen in sentences])
+        length_sorted_idx = np.argsort([-self.transformer._text_length(sen) for sen in sentences])
         sentences_sorted = [sentences[idx] for idx in length_sorted_idx]
 
         for start_index in trange(0, len(sentences), batch_size, desc="Batches", disable=True):
             sentences_batch = sentences_sorted[start_index:start_index + batch_size]
-            features = self.tokenize(sentences_batch)
+            features = self.transformer.tokenize(sentences_batch)
             if 'input_ids' in features:
                 tokens += sum(len(inp_ids) for inp_ids in features['input_ids'])
             elif 'pixel_values' in features:
@@ -40,7 +52,7 @@ class SentenceTransformerModelBase(SentenceTransformer):
             features = batch_to_device(features, device)
 
             with torch.no_grad():
-                out_features = self.forward(features)
+                out_features = self.transformer.forward(features)
 
                 embeddings = out_features['sentence_embedding']
                 embeddings = embeddings.detach()

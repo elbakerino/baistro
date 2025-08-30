@@ -2,13 +2,6 @@ import threading
 from typing import List, Tuple
 from baistro.model_control.infer_result import InferTracker, ModelTracker
 from baistro.model_control.model_base import ModelBase
-from baistro.models.dit_base import DitBaseModel
-from baistro.models.dit_large import DitLargeModel
-# from baistro.models.donut_docvqa import DonutDocvqaModel
-from baistro.models.donut_to_data import DonutToDataModel
-from baistro.models.donut_to_text import DonutToTextModel
-from baistro.models.qag_en_base import QagEnBaseModel
-from baistro.models.qnli_en_base import QnliEnBaseModel
 from baistro.models.stanza_models import \
     (StanzaMultiModel,
      StanzaBgModel, StanzaDaModel, StanzaDeModel,
@@ -19,8 +12,6 @@ from baistro.models.stanza_models import \
 from baistro.models.vector_code import VectorCodeModel
 from baistro.models.vector_image import VectorImageModel
 from baistro.models.vector_text import VectorTextModel
-from baistro.models.qa_en_large import QaEnLargeModel
-from baistro.models.qa_en_base import QaEnBaseModel
 
 
 class Models(object):
@@ -57,15 +48,6 @@ class Models(object):
 
 
 models = Models([
-    DitBaseModel,
-    DitLargeModel,
-    # DonutDocvqaModel,
-    DonutToDataModel,
-    DonutToTextModel,
-    QaEnBaseModel,
-    QaEnLargeModel,
-    QagEnBaseModel,
-    QnliEnBaseModel,
     StanzaMultiModel,
     StanzaBgModel,
     StanzaDaModel,

@@ -18,9 +18,6 @@ class VectorTextModel(ModelBase):
 
     _model = None
 
-    def __init__(self):
-        self.model.to('cpu')
-
     @property
     def model(self):
         if not VectorTextModel._model:

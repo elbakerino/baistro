@@ -14,8 +14,13 @@ from baistro.helper import ts
 from flask import render_template, url_for
 from flask_cors import CORS
 
+from baistro.model_control.models import models
+from baistro.models.vector_code import VectorCodeModel
+from baistro.models.vector_image import VectorImageModel
+from baistro.models.vector_text import VectorTextModel
+
 # todo: https://stackoverflow.com/a/16993115/2073149
-logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
+logging.basicConfig(stream=sys.stdout, level=AppConfig.LOGGING_LEVEL)
 pil_logger = logging.getLogger('PIL')
 pil_logger.setLevel(logging.INFO)
 
@@ -23,10 +28,31 @@ _VALID_PROPERTIES.add('widget')
 
 s = boot()
 
+if AppConfig.PRELOAD_VECTOR_TEXT:
+    model = models.get(VectorTextModel.id)
+    if model.model is None:
+        raise RuntimeError("VectorTextModel.model did not initialize")
+
+    logging.info(f'preloaded {VectorTextModel.id} with {model.name}')
+
+if AppConfig.PRELOAD_VECTOR_CODE:
+    model = models.get(VectorCodeModel.id)
+    if model.model is None:
+        raise RuntimeError("VectorCodeModel.model did not initialize")
+
+    logging.info(f'preloaded {VectorCodeModel.id} with {model.name}')
+
+if AppConfig.PRELOAD_VECTOR_IMAGE:
+    model = models.get(VectorImageModel.id)
+    if model.model is None:
+        raise RuntimeError("VectorImageModel.model did not initialize")
+
+    logging.info(f'preloaded {VectorImageModel.id} with {model.name}')
+
 app = APIFlask(
     __name__,
     title='baistro',
-    version='0.1.0',
+    version='0.2.0',
     docs_ui=AppConfig.API_DOCS_UI,
 )
 app.config['OPENAPI_VERSION'] = '3.1.0'

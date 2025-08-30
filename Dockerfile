@@ -1,4 +1,4 @@
-FROM python:3.10-slim-bookworm AS base
+FROM python:3.12-slim-bookworm AS base
 
 ARG VCS_REF
 ARG VCS_URL
@@ -9,7 +9,7 @@ ARG VERSION
 LABEL org.opencontainers.image.source="https://github.com/elbakerino/baistro"
 LABEL org.opencontainers.image.authors="Michael Becker, https://i-am-digital.eu"
 LABEL org.opencontainers.image.title="baistro"
-LABEL org.opencontainers.image.version="0.1.0"
+LABEL org.opencontainers.image.version="0.2.0"
 LABEL org.opencontainers.image.licenses="MIT"
 LABEL org.opencontainers.image.source=$VCS_URL
 LABEL org.opencontainers.image.revision=$VCS_REF
@@ -26,7 +26,7 @@ ENV PYTHONUNBUFFERED=1
 
 ENV POETRY_VERSION=2.1.4 \
     POETRY_NO_INTERACTION=1
-     #\
+    #\
     #POETRY_VIRTUALENVS_CREATE=false
 ARG DEBIAN_FRONTEND=noninteractive
 
@@ -57,20 +57,39 @@ FROM base AS dev
 #CMD poetry lock --no-interaction && poetry install --no-interaction && exec poetry run flask --app baistro.server:app --debug run --host 0.0.0.0 --port ${PORT}
 CMD poetry lock --no-interaction && poetry sync --no-interaction && poetry install --no-interaction && exec poetry run flask --app baistro.server:app --debug run --host 0.0.0.0 --port ${PORT}
 
-FROM base
+FROM base as builder
+
+ENV POETRY_VIRTUALENVS_CREATE=false
 
 COPY ./pyproject.toml /app/pyproject.toml
 COPY ./poetry.lock /app/poetry.lock
 
 # todo: using the mount cache increases the image size
 #RUN --mount=type=cache,target=/root/.cache/poetry poetry install --sync --no-dev --no-interaction -E gunicorn
-RUN poetry sync --without dev -E gunicorn --no-cache --no-root --no-interaction
+RUN poetry install --without dev -E gunicorn --no-cache --no-root --no-interaction
+# note: `sync` doesn't work without venv (acording to docs "works not well")
+#RUN poetry sync --without dev -E gunicorn --no-cache --no-root --no-interaction
 # note: with `--compile` the image was ~150MB larger, no measurable performance gain (or unknown how to check)
 #--compile
+
+FROM python:3.12-slim-bookworm AS runtime
+
+ENV PYTHONUNBUFFERED=1 \
+    POETRY_NO_INTERACTION=1 \
+    POETRY_VIRTUALENVS_CREATE=false
+
+WORKDIR /app
+
+#COPY --from=builder /usr/local /usr/local
+#COPY --from=builder /root/.cache/pypoetry/virtualenvs /root/.cache/pypoetry/virtualenvs
+
+COPY --from=builder /usr/local/lib/python3.12/site-packages /usr/local/lib/python3.12/site-packages
+COPY --from=builder /usr/local/bin /usr/local/bin
 
 COPY ./baistro /app/baistro
 
 ENV GUN_W 2
 
-# note: kept gettings `command not found: gunicorn`, until added `POETRY_VIRTUALENVS_CREATE=false`; now no longer reproducible
+# note: kept gettings `command not found: gunicorn`, this was caused by the `/root/.cache` mounts in docker-compose.
+#       remove these `volumes` when testing prod image locally!
 CMD exec poetry run gunicorn -w ${GUN_W} baistro.server:app
