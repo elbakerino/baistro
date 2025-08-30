@@ -52,7 +52,7 @@ if AppConfig.PRELOAD_VECTOR_IMAGE:
 app = APIFlask(
     __name__,
     title='baistro',
-    version='0.2.0',
+    version='0.2.1',
     docs_ui=AppConfig.API_DOCS_UI,
 )
 app.config['OPENAPI_VERSION'] = '3.1.0'

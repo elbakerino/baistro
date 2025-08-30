@@ -9,7 +9,7 @@ ARG VERSION
 LABEL org.opencontainers.image.source="https://github.com/elbakerino/baistro"
 LABEL org.opencontainers.image.authors="Michael Becker, https://i-am-digital.eu"
 LABEL org.opencontainers.image.title="baistro"
-LABEL org.opencontainers.image.version="0.2.0"
+LABEL org.opencontainers.image.version="0.2.1"
 LABEL org.opencontainers.image.licenses="MIT"
 LABEL org.opencontainers.image.source=$VCS_URL
 LABEL org.opencontainers.image.revision=$VCS_REF

@@ -4,7 +4,7 @@ TRUTHY_ENV_VAL = ['true', 'True', '1', 'yes']
 
 
 class AppConfig:
-    APP_ENV = os.getenv('APP_ENV')
+    APP_ENV = os.getenv('APP_ENV', 'dev')
     SERVICE_NAME = os.getenv('SERVICE_NAME', "unnamed-service")
     SERVICE_NAMESPACE = os.getenv('SERVICE_NAMESPACE', "unknown")
 
@@ -15,7 +15,6 @@ class AppConfig:
     CORS_SEND_WILDCARD = os.getenv('CORS_SEND_WILDCARD') in TRUTHY_ENV_VAL
 
     MODEL_DIR = os.getenv('MODEL_DIR', '/app/model-assets')
-    SHARED_DIR = os.getenv('SHARED_DIR', '/app/shared-assets')
     MODELS = {key[len('MODEL__'):]: os.environ[key] for key in os.environ.keys() if key.startswith('MODEL__')}
     PRELOAD_VECTOR_TEXT = os.getenv('PRELOAD_VECTOR_TEXT') in TRUTHY_ENV_VAL
     PRELOAD_VECTOR_CODE = os.getenv('PRELOAD_VECTOR_CODE') in TRUTHY_ENV_VAL

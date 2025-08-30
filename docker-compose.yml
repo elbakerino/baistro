@@ -11,7 +11,6 @@ services:
         stop_signal: SIGINT
         environment:
             PORT: 80
-            APP_ENV: local
             SERVICE_NAME: baistro
             SERVICE_NAMESPACE: bai
         volumes:
@@ -20,7 +19,6 @@ services:
             - baistro_0_pip:/root/.cache/pip
             - ./baistro:/app/baistro
             - ./model-assets:/app/model-assets
-            - ./shared-assets:/app/shared-assets
             - ./pyproject.toml:/app/pyproject.toml
             - ./poetry.lock:/app/poetry.lock
         ports:

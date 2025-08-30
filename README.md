@@ -36,6 +36,23 @@ Some APIs around AI models.
 
 ## Usage
 
+Clone this repository or add the service to your `docker-compose.yml`:
+
+```yaml
+services:
+    baistro:
+        image: ghcr.io/elbakerino/baistro:0.2.1
+        stop_signal: SIGINT
+        environment:
+            PORT: 8702
+            GUN_W: 1
+        volumes:
+            # folder for model files
+            - ./model-assets:/app/model-assets
+        ports:
+            - "8702:8702"
+```
+
 Startup server:
 
 ```shell
@@ -44,7 +61,7 @@ docker compose up
 
 - Service Home: [localhost:8702](http://localhost:8702)
 - OpenAPI Docs: [localhost:8702/docs](http://localhost:8702/docs)
-- OpenAPI File: [localhost:8702/docs](http://localhost:8702/openapi.json)
+- OpenAPI File: [localhost:8702/openapi.json](http://localhost:8702/openapi.json)
 
 Run CLI in docker container:
 
