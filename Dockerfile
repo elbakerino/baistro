@@ -1,22 +1,5 @@
 FROM python:3.12-slim-bookworm AS base
 
-ARG VCS_REF
-ARG VCS_URL
-ARG CI_RUN_URL
-ARG BUILD_DATE
-ARG VERSION
-
-LABEL org.opencontainers.image.source="https://github.com/elbakerino/baistro"
-LABEL org.opencontainers.image.authors="Michael Becker, https://i-am-digital.eu"
-LABEL org.opencontainers.image.title="baistro"
-LABEL org.opencontainers.image.version="0.2.1"
-LABEL org.opencontainers.image.licenses="MIT"
-LABEL org.opencontainers.image.source=$VCS_URL
-LABEL org.opencontainers.image.revision=$VCS_REF
-LABEL org.opencontainers.image.url=$CI_RUN_URL
-LABEL org.opencontainers.image.created=$BUILD_DATE
-LABEL org.opencontainers.image.version=$VERSION
-
 ENV PYTHONUNBUFFERED=1
 # note: let's try adding the bytecode. the con-arguments are somewhat fuzzy and not backed by arguments
 # (con) https://stackoverflow.com/a/60797635/2073149
@@ -68,6 +51,24 @@ RUN poetry install --without dev -E gunicorn --no-cache --no-root --no-interacti
 #--compile
 
 FROM python:3.12-slim-bookworm AS runtime
+
+ARG VCS_REF
+ARG VCS_URL
+ARG CI_RUN_URL
+ARG BUILD_DATE
+ARG VERSION
+
+LABEL org.opencontainers.image.source="https://github.com/elbakerino/baistro"
+LABEL org.opencontainers.image.authors="Michael Becker, https://i-am-digital.eu"
+LABEL org.opencontainers.image.title="baistro"
+LABEL org.opencontainers.image.version="0.2.2"
+LABEL org.opencontainers.image.licenses="MIT"
+LABEL org.opencontainers.image.description="Some APIs for AI models that run on CPU, designed for deterministic NLP. Includes Stanza and Sentence Transformers to provide a self-contained NLP processing unit for common tasks."
+LABEL org.opencontainers.image.source=$VCS_URL
+LABEL org.opencontainers.image.revision=$VCS_REF
+LABEL org.opencontainers.image.url=$CI_RUN_URL
+LABEL org.opencontainers.image.created=$BUILD_DATE
+LABEL org.opencontainers.image.version=$VERSION
 
 ENV PYTHONUNBUFFERED=1 \
     POETRY_NO_INTERACTION=1 \

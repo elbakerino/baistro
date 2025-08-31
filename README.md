@@ -41,7 +41,7 @@ Clone this repository or add the service to your `docker-compose.yml`:
 ```yaml
 services:
     baistro:
-        image: ghcr.io/elbakerino/baistro:0.2.1
+        image: ghcr.io/elbakerino/baistro:0.2.2
         stop_signal: SIGINT
         environment:
             PORT: 8702
