@@ -58,10 +58,8 @@ ARG CI_RUN_URL
 ARG BUILD_DATE
 ARG VERSION
 
-LABEL org.opencontainers.image.source="https://github.com/elbakerino/baistro"
 LABEL org.opencontainers.image.authors="Michael Becker, https://i-am-digital.eu"
 LABEL org.opencontainers.image.title="baistro"
-LABEL org.opencontainers.image.version="0.2.2"
 LABEL org.opencontainers.image.licenses="MIT"
 LABEL org.opencontainers.image.description="Some APIs for AI models that run on CPU, designed for deterministic NLP. Includes Stanza and Sentence Transformers to provide a self-contained NLP processing unit for common tasks."
 LABEL org.opencontainers.image.source=$VCS_URL
