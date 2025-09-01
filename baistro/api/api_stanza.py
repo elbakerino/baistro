@@ -20,7 +20,7 @@ class LocaleIdentRequestOptions(Schema):
     possible_locales = fields.List(
         fields.String(),
         metadata={
-            'default': ['en'],
+            'example': ['en', 'de', 'fr', 'es', 'it'],
             'description': 'List of possible locales to identify. If empty, all supported locales are used.'
         },
     )
@@ -31,7 +31,19 @@ class LocaleIdentRequestOptions(Schema):
 
 
 class LocaleIdentRequest(Schema):
-    input = fields.String(required=True)
+    input = fields.String(
+        required=True,
+        metadata={
+            'example': 'This is a test sentence.',
+            'examples': [
+                'This is a test sentence.',
+                'Das ist ein Testsatz.',
+                'Ceci est une phrase de test.',
+                'Questa è una frase di prova.',
+            ],
+            'description': 'Input text to be analyzed.'
+        }
+    )
     options = fields.Nested(LocaleIdentRequestOptions())
 
 
@@ -106,15 +118,15 @@ class SentenceClassificationAnalysisResponse(InferBaseResponse):
 
 def api_stanza(app: APIFlask, s: Services):
     @app.route(f'/locale-ident', methods=['POST'])
-    @app.input(LocaleIdentRequest, location='json_or_form')
+    @app.input(LocaleIdentRequest)
     @app.output(LocaleIdentResponse())
     @app.doc(tags=[f'NLP'])
-    def locale_ident(json_or_form_data):
+    def locale_ident(json_data):
         infer_res = InferTracker()
         tracker = infer_res.tracker('stanza-lang_id')
 
-        options = json_or_form_data.get('options', {})
-        input = json_or_form_data['input']
+        options = json_data.get('options', {})
+        input = json_data['input']
 
         possible_locales: List[str] = options.get('possible_locales', None)
         clean_text: bool = options.get('clean_text', False)
@@ -138,16 +150,16 @@ def api_stanza(app: APIFlask, s: Services):
         }
 
     @app.route(f'/sentence-segments', methods=['POST'])
-    @app.input(SentenceAnalysisRequest, location='json_or_form')
+    @app.input(SentenceAnalysisRequest)
     @app.output(SentenceSegmentsAnalysisResponse())
     @app.doc(tags=[f'NLP'])
-    def sentence_segments(json_or_form_data):
+    def sentence_segments(json_data):
         infer_res = InferTracker()
         tracker = infer_res.tracker('stanza-sentence-segments')
 
-        attributes = json_or_form_data.get('attributes', {})
-        options = json_or_form_data.get('options', {})
-        input = json_or_form_data['input']
+        attributes = json_data.get('attributes', {})
+        options = json_data.get('options', {})
+        input = json_data['input']
 
         locale = attributes.get('locale', 'en')
         no_ssplit = options.get('no_ssplit', True)
@@ -173,16 +185,16 @@ def api_stanza(app: APIFlask, s: Services):
         }
 
     @app.route(f'/sentence-classifications', methods=['POST'])
-    @app.input(SentenceAnalysisRequest, location='json_or_form')
+    @app.input(SentenceAnalysisRequest)
     @app.output(SentenceClassificationAnalysisResponse())
     @app.doc(tags=[f'NLP'])
-    def sentence_classifications(json_or_form_data):
+    def sentence_classifications(json_data):
         infer_res = InferTracker()
         tracker = infer_res.tracker('stanza-sentence-classifications')
 
-        attributes = json_or_form_data.get('attributes', {})
-        options = json_or_form_data.get('options', {})
-        input = json_or_form_data['input']
+        attributes = json_data.get('attributes', {})
+        options = json_data.get('options', {})
+        input = json_data['input']
 
         locale = attributes.get('locale', 'en')
         no_ssplit = options.get('no_ssplit', True)

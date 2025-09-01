@@ -96,7 +96,6 @@ poetry lock --regenerate
 poetry sync
 poetry install
 
-# poetry lock && poetry sync --no-root && poetry install
 # poetry lock --regenerate && poetry sync && poetry install
 ```
 

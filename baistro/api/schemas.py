@@ -1,5 +1,5 @@
 from apiflask import Schema, fields
-from marshmallow import ValidationError
+from marshmallow import ValidationError, validates_schema
 
 
 class StringOrList(fields.Field):
@@ -96,13 +96,36 @@ class VectorQueryOptions(Schema):
 class VectorQueryRequest(Schema):
     options = fields.Nested(VectorQueryOptions())
     # todo: implement batch query, if not just broken with schema
-    query = fields.String()
-    context = fields.List(fields.String())
+    query = fields.String(required=True)
+    context = fields.List(fields.String(), required=True)
 
 
 class VectorFileRequest(Schema):
     file = fields.File()
     input = fields.String()
+
+    # todo: either file or input is required, but found no way to add it on Schema
+    # def __init__(self, **kwargs):
+    #     metadata = {
+    #         "anyOf": [
+    #             {"required": ["file"]},
+    #             {"required": ["input"]}
+    #         ]
+    #     }
+    #
+    #     if 'metadata' in kwargs:
+    #         kwargs['metadata'] = {**metadata, **kwargs['metadata']}
+    #     else:
+    #         kwargs['metadata'] = metadata
+    #
+    #     super().__init__(**kwargs)
+
+    @validates_schema
+    def validate_file_or_input(self, data, **kwargs):
+        if not data.get("file") and not data.get("input"):
+            raise ValidationError("Either 'file' or 'input' is required.", field_name="file")
+        if data.get("file") and data.get("input"):
+            raise ValidationError("Only one of 'file' or 'input' should be provided.")
 
 
 class VectorResponse(InferBaseResponse):

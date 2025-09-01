@@ -39,6 +39,7 @@ FROM base as builder
 
 ENV POETRY_VIRTUALENVS_CREATE=false
 
+# todo: version bumps unnecesarily invalidate the docker cache, as the py code isn't published as a package, it shouldn't be important to track the version there. but `version` is required with package-mode enabled.
 COPY ./pyproject.toml /app/pyproject.toml
 COPY ./poetry.lock /app/poetry.lock
 
