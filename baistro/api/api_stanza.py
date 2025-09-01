@@ -1,7 +1,6 @@
 from typing import List
 from apiflask import APIFlask, fields, Schema
-from stanza import Document
-from stanza.models.common.doc import Sentence
+from stanza.models.common.doc import Document, Sentence
 from baistro._boot import Services
 from baistro.api.schemas import InferBaseResponse, StringOrList
 from baistro.model_control.infer_result import InferTracker

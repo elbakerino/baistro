@@ -3,7 +3,7 @@ from PIL import Image
 from apiflask import APIFlask
 from sentence_transformers import util
 from torch import Tensor
-from baistro.api.schemas import VectorResponse, VectorQueryResponse, VectorRequest, VectorFileRequest, VectorQueryRequest, VectorBatchResponse, VectorBatchRequest, VectorOneOrManyRequest
+from baistro.api.schemas import VectorResponse, VectorQueryResponse, VectorRequest, VectorFileRequest, VectorQueryRequest, VectorBatchResponse, VectorBatchRequest
 from baistro._boot import Services
 from baistro.model_control.infer_result import InferTracker
 from baistro.model_control.models import models

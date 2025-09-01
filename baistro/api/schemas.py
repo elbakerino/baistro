@@ -1,5 +1,7 @@
 from apiflask import Schema, fields
-from marshmallow import ValidationError, validates_schema
+from marshmallow.exceptions import ValidationError
+from marshmallow.decorators import validates_schema
+from marshmallow.validate import Length
 
 
 class StringOrList(fields.Field):
@@ -77,15 +79,11 @@ class OutcomeWithScoresResponse(InferBaseResponse):
 
 
 class VectorRequest(Schema):
-    input = fields.String()
-
-
-class VectorOneOrManyRequest(Schema):
-    input = StringOrList()
+    input = fields.String(required=True)
 
 
 class VectorBatchRequest(Schema):
-    input = fields.List(fields.String())
+    input = fields.List(fields.String(), required=True, validate=Length(1))
 
 
 class VectorQueryOptions(Schema):

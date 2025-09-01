@@ -1,6 +1,6 @@
 import threading
 
-import stanza
+from stanza import Pipeline
 
 from baistro.config.config import AppConfig
 
@@ -27,7 +27,7 @@ class StanzaModelCache(object):
         self,
         locale: str,
         **kwargs,
-    ) -> stanza.Pipeline:
+    ) -> Pipeline:
         cache_id = f'{locale}'
         if 'langid_lang_subset' in kwargs and kwargs['langid_lang_subset']:
             cache_id += '|' + ','.join(sorted(kwargs['langid_lang_subset']))
@@ -39,7 +39,7 @@ class StanzaModelCache(object):
         if cache_id not in self.pipelines:
             with self.lock:
                 if cache_id not in self.pipelines:
-                    self.pipelines[cache_id] = stanza.Pipeline(
+                    self.pipelines[cache_id] = Pipeline(
                         locale,
                         dir=self.model_dir,
                         download_method=None,
