@@ -41,7 +41,7 @@ Clone this repository or add the service to your `docker-compose.yml`:
 ```yaml
 services:
     baistro:
-        image: ghcr.io/elbakerino/baistro:0.2.2
+        image: ghcr.io/elbakerino/baistro:0.2.3
         stop_signal: SIGINT
         environment:
             PORT: 8702
@@ -90,12 +90,14 @@ poetry run cli models
 Manage dependencies with [poetry v2](https://python-poetry.org/):
 
 ```shell
-poetry lock
-poetry sync --no-root
+# first update lock file if .toml was changed
+poetry lock --regenerate
+# then sync and install
+poetry sync
 poetry install
 
 # poetry lock && poetry sync --no-root && poetry install
-# poetry lock --regenerate && poetry sync --no-root && poetry install
+# poetry lock --regenerate && poetry sync && poetry install
 ```
 
 ## License

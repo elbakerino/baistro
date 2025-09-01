@@ -13,9 +13,10 @@ class SentenceTransformerModelBase:
 
     def __init__(
         self,
-        model_name_or_path: str | None = None
+        model_name_or_path: str | None = None,
+        local_files_only: bool = False,
     ):
-        self.transformer = SentenceTransformer(model_name_or_path, local_files_only=True)
+        self.transformer = SentenceTransformer(model_name_or_path, local_files_only=local_files_only)
 
     def save(self, path: str):
         return self.transformer.save(path)

@@ -13,7 +13,7 @@ processor_maps = {
 def stanza_download(locale: str):
     stanza.download(
         locale,
-        processors=processor_maps[locale],
+        processors=processor_maps.get(locale),
         model_dir=os.getenv("STANZA_RESOURCES_DIR"),
         logging_level='INFO',
     )

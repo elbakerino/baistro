@@ -33,7 +33,7 @@ FROM base AS dev
 
 # note: with `poetry sync`/`--sync` lead to `poetry not found` error; WHEN `POETRY_VIRTUALENVS_CREATE=false` is set
 #CMD poetry lock --no-interaction && poetry install --no-interaction && exec poetry run flask --app baistro.server:app --debug run --host 0.0.0.0 --port ${PORT}
-CMD poetry lock --no-interaction && poetry sync --no-interaction && poetry install --no-interaction && exec poetry run flask --app baistro.server:app --debug run --host 0.0.0.0 --port ${PORT}
+CMD poetry lock --no-interaction && poetry sync --no-root --no-interaction && poetry install --no-root --no-interaction && exec poetry run flask --app baistro.server:app --debug run --host 0.0.0.0 --port ${PORT}
 
 FROM base as builder
 
@@ -44,11 +44,16 @@ COPY ./poetry.lock /app/poetry.lock
 
 # todo: using the mount cache increases the image size
 #RUN --mount=type=cache,target=/root/.cache/poetry poetry install --sync --no-dev --no-interaction -E gunicorn
-RUN poetry install --without dev -E gunicorn --no-cache --no-root --no-interaction
+
 # note: `sync` doesn't work without venv (acording to docs "works not well")
 #RUN poetry sync --without dev -E gunicorn --no-cache --no-root --no-interaction
-# note: with `--compile` the image was ~150MB larger, no measurable performance gain (or unknown how to check)
-#--compile
+
+RUN poetry install --without dev -E gunicorn --no-cache --no-root --no-interaction
+# note: `--no-root` causes the "not installed as a script" warning,
+#       which can't be used here when package-mode is not disabled,
+#       fix: secondary installtion after copied sources in runtime image itself
+# note: with `--compile` the image was ~150MB larger,
+#       no measurable performance gain (or unknown how to check)
 
 FROM python:3.12-slim-bookworm AS runtime
 
@@ -74,9 +79,6 @@ ENV PYTHONUNBUFFERED=1 \
 
 WORKDIR /app
 
-#COPY --from=builder /usr/local /usr/local
-#COPY --from=builder /root/.cache/pypoetry/virtualenvs /root/.cache/pypoetry/virtualenvs
-
 COPY --from=builder /usr/local/lib/python3.12/site-packages /usr/local/lib/python3.12/site-packages
 COPY --from=builder /usr/local/bin /usr/local/bin
 
@@ -88,7 +90,11 @@ COPY ./baistro /app/baistro
 COPY ./README.md README.md
 COPY ./LICENSE LICENSE
 
-ENV GUN_W 2
+# secondary install of only main for correct poetry script install; to fix:
+# Warning: 'cli' is an entry point defined in pyproject.toml, but it's not installed as a script. You may get improper `sys.argv[0]`.
+RUN poetry install --only main --no-cache --no-interaction
+
+ENV GUN_W 1
 
 # note: kept gettings `command not found: gunicorn`, this was caused by the `/root/.cache` mounts in docker-compose.
 #       remove these `volumes` when testing prod image locally!

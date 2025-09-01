@@ -18,10 +18,14 @@ class VectorTextModel(ModelBase):
 
     _model = None
 
+    def __init__(self):
+        # note: necessary in init for correct `load` tracking
+        self.model.transformer.to('cpu')
+
     @property
     def model(self):
         if not VectorTextModel._model:
-            VectorTextModel._model = SentenceTransformerModelBase(VectorTextModel.folder)
+            VectorTextModel._model = SentenceTransformerModelBase(VectorTextModel.folder, local_files_only=True)
         return VectorTextModel._model
 
     def encode(self, sentences: Union[List[str], str], **kwargs):

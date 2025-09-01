@@ -1,11 +1,13 @@
 [tool.poetry]
 name = "baistro"
-version = "0.2.2"
+version = "0.2.3"
 description = "baistro - AI as API"
 authors = ["Michael Becker <michael@bemit.codes>"]
 license = "MIT"
 readme = "README.md"
-package-mode = false
+# package-mode clashes somehow with in-container poetry install (... not installed as a script ...)
+# https://stackoverflow.com/a/78475731/2073149
+#package-mode = false
 
 [tool.poetry.scripts]
 cli = "baistro.cli:cli"

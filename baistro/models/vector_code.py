@@ -18,10 +18,14 @@ class VectorCodeModel(ModelBase):
 
     _model = None
 
+    def __init__(self):
+        # note: necessary in init for correct `load` tracking
+        self.model.transformer.to('cpu')
+
     @property
     def model(self):
         if not VectorCodeModel._model:
-            VectorCodeModel._model = SentenceTransformerModelBase(VectorCodeModel.folder)
+            VectorCodeModel._model = SentenceTransformerModelBase(VectorCodeModel.folder, local_files_only=True)
         return VectorCodeModel._model
 
     def encode(self, sentences: Union[List[str], str]):

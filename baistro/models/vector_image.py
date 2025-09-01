@@ -19,10 +19,14 @@ class VectorImageModel(ModelBase):
 
     _model = None
 
+    def __init__(self):
+        # note: necessary in init for correct `load` tracking
+        self.model.transformer.to('cpu')
+
     @property
     def model(self):
         if not VectorImageModel._model:
-            VectorImageModel._model = SentenceTransformerModelBase(VectorImageModel.folder)
+            VectorImageModel._model = SentenceTransformerModelBase(VectorImageModel.folder, local_files_only=True)
         return VectorImageModel._model
 
     def encode(self, sentences: Union[List[str], str, Image]):
