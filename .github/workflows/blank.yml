@@ -66,12 +66,12 @@ jobs:
                 uses: actions/upload-artifact@v4
                 with:
                     name: openapi-spec-yaml
-                    path: openapi.yaml
+                    path: spec/openapi.yaml
             -   name: Upload OpenAPI spec json artifact
                 uses: actions/upload-artifact@v4
                 with:
                     name: openapi-spec-json
-                    path: openapi.json
+                    path: spec/openapi.json
 
             -   name: Publish image `api` as `develop`
                 if: github.ref == 'refs/heads/develop' || startsWith(github.ref, 'refs/heads/feature/')
