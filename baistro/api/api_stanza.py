@@ -1,10 +1,14 @@
 from typing import List
-from apiflask import APIFlask, fields, Schema
+from apiflask import APIFlask, fields, Schema, HTTPError
 from stanza.models.common.doc import Document, Sentence
+from stanza.pipeline.core import LanguageNotDownloadedError
+
 from baistro._boot import Services
 from baistro.api.schemas import InferBaseResponse, StringOrList
+from baistro.config.config import AppConfig
 from baistro.model_control.infer_result import InferTracker
 from baistro.model_control.stanza_model import stanza_model, SIMPLE_PROCESSORS
+from baistro.model_control.models import models
 
 
 class LocaleIdentOutcome(Schema):
@@ -115,6 +119,14 @@ class SentenceClassificationAnalysisResponse(InferBaseResponse):
     outcome = fields.Nested(SentenceClassificationAnalysisOutcome())
 
 
+def get_language_error(lang: str):
+    error = f'Unsupported language: "{lang}".'
+    # todo: check whats normal in python for such checks
+    if models.has(f'stanza-{lang}') and AppConfig.APP_ENV in ['local', 'dev', 'development']:
+        error += f' You can download it with: poetry run cli download stanza-{lang}'
+    return error
+
+
 def api_stanza(app: APIFlask, s: Services):
     @app.route(f'/locale-ident', methods=['POST'])
     @app.input(LocaleIdentRequest)
@@ -132,21 +144,24 @@ def api_stanza(app: APIFlask, s: Services):
         if possible_locales:
             possible_locales.sort()
 
-        on_loaded = tracker('load')
-        pipe = stanza_model.pipeline(
-            locale="multilingual",
-            langid_lang_subset=possible_locales,
-            langid_clean_text=clean_text,
-        )
-        on_loaded()
+        try:
+            on_loaded = tracker('load')
+            pipe = stanza_model.pipeline(
+                locale="multilingual",
+                langid_lang_subset=possible_locales,
+                langid_clean_text=clean_text,
+            )
+            on_loaded()
 
-        on_processed = tracker('infer')
-        doc: Document = pipe(input, 'langid')
-        on_processed(tokens=doc.num_tokens)
-        return {
-            '_usages': infer_res.usages,
-            'outcome': {'locale': doc.lang},
-        }
+            on_processed = tracker('infer')
+            doc: Document = pipe(input, 'langid')
+            on_processed(tokens=doc.num_tokens)
+            return {
+                '_usages': infer_res.usages,
+                'outcome': {'locale': doc.lang},
+            }
+        except LanguageNotDownloadedError as e:
+            raise HTTPError(400, message=get_language_error(e.lang))
 
     @app.route(f'/sentence-segments', methods=['POST'])
     @app.input(SentenceAnalysisRequest)
@@ -163,25 +178,28 @@ def api_stanza(app: APIFlask, s: Services):
         locale = attributes.get('locale', 'en')
         no_ssplit = options.get('no_ssplit', True)
 
-        on_loaded = tracker('load')
-        pipe = stanza_model.pipeline(
-            locale=locale,
-            tokenize_no_ssplit=no_ssplit,
-        )
-        on_loaded()
+        try:
+            on_loaded = tracker('load')
+            pipe = stanza_model.pipeline(
+                locale=locale,
+                tokenize_no_ssplit=no_ssplit,
+            )
+            on_loaded()
 
-        on_processed = tracker('infer')
-        doc: Document = pipe(input, processors='tokenize')
-        on_processed(tokens=doc.num_tokens)
+            on_processed = tracker('infer')
+            doc: Document = pipe(input, processors='tokenize')
+            on_processed(tokens=doc.num_tokens)
 
-        sentence_pieces = []
-        for sentence in doc.sentences:
-            sentence: Sentence = sentence
-            sentence_pieces.append(sentence.text)
-        return {
-            '_usages': infer_res.usages,
-            'outcome': {'sentence_pieces': sentence_pieces},
-        }
+            sentence_pieces = []
+            for sentence in doc.sentences:
+                sentence: Sentence = sentence
+                sentence_pieces.append(sentence.text)
+            return {
+                '_usages': infer_res.usages,
+                'outcome': {'sentence_pieces': sentence_pieces},
+            }
+        except LanguageNotDownloadedError as e:
+            raise HTTPError(400, message=get_language_error(e.lang))
 
     @app.route(f'/sentence-classifications', methods=['POST'])
     @app.input(SentenceAnalysisRequest)
@@ -202,15 +220,18 @@ def api_stanza(app: APIFlask, s: Services):
             SIMPLE_PROCESSORS[processors_id] if processors_id in SIMPLE_PROCESSORS else processors_id
         )
 
-        on_loaded = tracker('load')
-        pipe = stanza_model.pipeline(
-            locale=locale,
-            # if `tokenize_no_ssplit=True` it uses two-newlines to separate sentences,
-            # which is important for headline, list-item and other incomplete-sentence to correctly get their struct.
-            tokenize_no_ssplit=no_ssplit,
-            # tokenize_pretokenized=not isinstance(input, str), # todo: not in caching yet / not needed anymore, or?
-        )
-        on_loaded()
+        try:
+            on_loaded = tracker('load')
+            pipe = stanza_model.pipeline(
+                locale=locale,
+                # if `tokenize_no_ssplit=True` it uses two-newlines to separate sentences,
+                # which is important for headline, list-item and other incomplete-sentence to correctly get their struct.
+                tokenize_no_ssplit=no_ssplit,
+                # tokenize_pretokenized=not isinstance(input, str), # todo: not in caching yet / not needed anymore, or?
+            )
+            on_loaded()
+        except LanguageNotDownloadedError as e:
+            raise HTTPError(400, message=get_language_error(e.lang))
 
         on_processed = tracker('infer')
         doc: Document = pipe(

@@ -52,10 +52,34 @@ if AppConfig.PRELOAD_VECTOR_IMAGE:
 app = APIFlask(
     __name__,
     title='baistro',
-    version='0.2.3',
+    version='0.3.0',
     docs_ui=AppConfig.API_DOCS_UI,
 )
 app.config['OPENAPI_VERSION'] = '3.1.0'
+app.config['TAGS'] = [
+    {'name': 'NLP', 'description': 'APIs for Natural Language Processing, including locale identification, sentence segmentation, and various classification tasks like sentiment analysis and named entity recognition.'},
+    {'name': 'Models', 'description': 'Information about defined models and their availability.'},
+    {'name': 'vector-text', 'description': 'Vector embeddings for plaintext, the foundation for many AI tasks like semantic search, clustering, and classification. These embeddings capture the semantic meaning of text, enabling advanced semantic understanding, similarity comparisons, and advanced retrieval augmented generation (RAG) systems.'},
+    {'name': 'vector-code', 'description': 'Vector embeddings for source code, use it for semantic search on code snippets (search code by natural language) and finding similar code.'},
+    {'name': 'vector-image', 'description': 'Vector embeddings for images, use it for search-by-image and similar-image-search. These embeddings are generated using advanced deep learning models like CLIP, which learn to associate images with their textual descriptions. This enables cross-modal search capabilities, allowing users to find images using text queries and vice-versa.'},
+]
+app.config['INFO'] = {
+    'description': 'Some APIs for AI models that run on CPU, designed for deterministic NLP. Includes Stanza and Sentence Transformers to provide a self-contained NLP processing unit for common tasks.',
+    'license': {
+        'name': 'MIT License',
+        'url': 'https://github.com/elbakerino/baistro/blob/main/LICENSE',
+    }
+}
+app.config['EXTERNAL_DOCS'] = {
+    'description': 'baistro repository',
+    'url': 'https://github.com/elbakerino/baistro',
+}
+
+# todo: support configuring server and related openapi/flask config like base-path
+# app.config['SERVERS'] = ''
+
+#app.config['SYNC_LOCAL_SPEC'] = True
+#app.config['LOCAL_SPEC_PATH'] = 'openapi.json'
 
 CORS(
     app,

@@ -41,7 +41,7 @@ Clone this repository or add the service to your `docker-compose.yml`:
 ```yaml
 services:
     baistro:
-        image: ghcr.io/elbakerino/baistro:0.2.3
+        image: ghcr.io/elbakerino/baistro:0.3.0
         stop_signal: SIGINT
         environment:
             PORT: 8702
@@ -83,7 +83,21 @@ poetry run cli download stanza-multilingual
 
 # list models:
 poetry run cli models
+
+# generate openapi spec file:
+poetry run flask --app baistro.server:app spec -f yaml
 ```
+
+Configure the vector models via env variables for each specialization:
+
+```
+MODEL__VECTOR_TEXT=T-Systems-onsite/cross-en-de-roberta-sentence-transformer
+MODEL__VECTOR_CODE=microsoft/unixcoder-base
+MODEL__VECTOR_IMAGE=sentence-transformers/clip-ViT-B-32-multilingual-v1
+```
+
+- for models on huggingface: use its name then run e.g. `poetry run cli download vector-text` to download the new configured model
+- for custom model: mount the model folder as `/app/model-assets/<custom-model>`, with custom-model being the env-var value
 
 ## DEV Notes
 

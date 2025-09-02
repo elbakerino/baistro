@@ -56,6 +56,23 @@ jobs:
                         --build-arg VERSION=${{ steps.short_ref.outputs.short_ref }} \
                         -t ghcr.io/elbakerino/baistro -f Dockerfile .
 
+            -   name: Generate OpenAPI spec
+                run: |
+                    #docker run --rm -v $(pwd):/app/spec ghcr.io/elbakerino/baistro \
+                    #    sh -c "poetry run flask --app baistro.server:app spec -f yaml > /app/spec/openapi.yaml"
+                    docker run --rm -v $(pwd):/host/spec ghcr.io/elbakerino/baistro \
+                        cp -r /app/spec /host/spec
+            -   name: Upload OpenAPI spec yaml artifact
+                uses: actions/upload-artifact@v3
+                with:
+                    name: openapi-spec-yaml
+                    path: openapi.yaml
+            -   name: Upload OpenAPI spec json artifact
+                uses: actions/upload-artifact@v3
+                with:
+                    name: openapi-spec-json
+                    path: openapi.json
+
             -   name: Publish image `api` as `develop`
                 if: github.ref == 'refs/heads/develop' || startsWith(github.ref, 'refs/heads/feature/')
                 # todo: would images per feature bloat the registry or a good idea? maybe together with a cleanup when closing the feature branch/PR

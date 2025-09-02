@@ -15,6 +15,9 @@ class AppConfig:
     CORS_SEND_WILDCARD = os.getenv('CORS_SEND_WILDCARD') in TRUTHY_ENV_VAL
 
     MODEL_DIR = os.getenv('MODEL_DIR', '/app/model-assets')
+    MODEL_DIR_STANZA = os.getenv('MODEL_DIR_STANZA', MODEL_DIR + '/stanza')
+    MODEL_DIR_SENTENCE_TRANSFORMERS = os.getenv('MODEL_DIR_SENTENCE_TRANSFORMERS', MODEL_DIR)
+
     MODELS = {key[len('MODEL__'):]: os.environ[key] for key in os.environ.keys() if key.startswith('MODEL__')}
     PRELOAD_VECTOR_TEXT = os.getenv('PRELOAD_VECTOR_TEXT') in TRUTHY_ENV_VAL
     PRELOAD_VECTOR_CODE = os.getenv('PRELOAD_VECTOR_CODE') in TRUTHY_ENV_VAL
@@ -27,7 +30,7 @@ class AppConfig:
 
 # todo: optimize these runtime-env vars
 # todo: it seems the cache-dirs are also configurable, but with other settings for some
-os.environ['STANZA_RESOURCES_DIR'] = AppConfig.MODEL_DIR + '/_stanza'
+os.environ['STANZA_RESOURCES_DIR'] = AppConfig.MODEL_DIR_STANZA
 
 # todo: the cache dir for sentence-transformers is in conflict with configured `folder`,
 #       between 2.2.2 and 2.3.1 the internal folder normalization seems to have changed,
@@ -37,4 +40,4 @@ os.environ['STANZA_RESOURCES_DIR'] = AppConfig.MODEL_DIR + '/_stanza'
 #       to use the default folder in the container which downloads the models,
 #       and save the model into the mounted folder afterwards.
 # os.environ['SENTENCE_TRANSFORMERS_HOME'] = AppConfig.MODEL_DIR + '/_sent_tran'
-SENTENCE_TRANSFORMERS_HOME = AppConfig.MODEL_DIR + '/_sent_tran'
+SENTENCE_TRANSFORMERS_HOME = AppConfig.MODEL_DIR_SENTENCE_TRANSFORMERS

@@ -50,4 +50,4 @@ class StanzaModelCache(object):
         return self.pipelines[cache_id]
 
 
-stanza_model = StanzaModelCache(AppConfig.MODEL_DIR + '/_stanza')
+stanza_model = StanzaModelCache(AppConfig.MODEL_DIR_STANZA)

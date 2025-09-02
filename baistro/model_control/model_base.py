@@ -1,4 +1,4 @@
-from typing import List, Optional
+from typing import List, Optional, Union
 
 
 class ModelBase(object):
@@ -28,5 +28,5 @@ class ModelBase(object):
         pass
 
 
-def model_url(model: ModelBase):
+def model_url(model: Union[ModelBase, type[ModelBase]]):
     return "https://huggingface.co/" + model.name if model.url == "hugging" else model.url

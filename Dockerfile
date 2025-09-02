@@ -95,6 +95,10 @@ COPY ./LICENSE LICENSE
 # Warning: 'cli' is an entry point defined in pyproject.toml, but it's not installed as a script. You may get improper `sys.argv[0]`.
 RUN poetry install --only main --no-cache --no-interaction
 
+RUN mkdir spec && \
+    poetry run flask --app baistro.server:app spec -f yaml > spec/openapi.yaml && \
+    poetry run flask --app baistro.server:app spec -f json > spec/openapi.json
+
 ENV GUN_W 1
 
 # note: kept gettings `command not found: gunicorn`, this was caused by the `/root/.cache` mounts in docker-compose.

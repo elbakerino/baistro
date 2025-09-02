@@ -34,7 +34,9 @@ class ModelStats(Schema):
     name = fields.String()
     locale = fields.List(fields.String())
     url = fields.String()
-    size = fields.Number()
+    size = fields.Number(metadata={
+        'description': 'Size of the model in bytes, if no files are found it is `0`.'
+    })
 
 
 class ModelsResponse(Schema):

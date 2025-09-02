@@ -14,7 +14,6 @@ class VectorCodeModel(ModelBase):
     folder = f'{SENTENCE_TRANSFORMERS_HOME}/{name.replace("/", "_")}'
     # folder = f'{os.getenv("SENTENCE_TRANSFORMERS_HOME")}/{name.replace("/", "_")}'
     tasks = ['vector-text', 'vector-code']
-    locale = ['en']
 
     _model = None
 
