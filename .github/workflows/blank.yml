@@ -63,12 +63,12 @@ jobs:
                     docker run --rm -v $(pwd):/host/spec ghcr.io/elbakerino/baistro \
                         cp -r /app/spec /host/spec
             -   name: Upload OpenAPI spec yaml artifact
-                uses: actions/upload-artifact@v3
+                uses: actions/upload-artifact@v4
                 with:
                     name: openapi-spec-yaml
                     path: openapi.yaml
             -   name: Upload OpenAPI spec json artifact
-                uses: actions/upload-artifact@v3
+                uses: actions/upload-artifact@v4
                 with:
                     name: openapi-spec-json
                     path: openapi.json
