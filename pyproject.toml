@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "baistro"
-version = "0.3.0"
+version = "0.4.0"
 description = "baistro - AI as API"
 authors = ["Michael Becker <michael@bemit.codes>"]
 license = "MIT"
@@ -26,6 +26,11 @@ apiflask = "^2.4.0"
 marshmallow = "^3.20.2" # api flask/flask-marshmallow is not compatible with v4
 pillow = "^11.3.0"
 scikit-learn = "^1.7.0"
+matplotlib = "^3.10.6"
+seaborn = "^0.13.2"
+wordcloud = "^1.9.4"
+networkx = "^3.1"
+squarify = "^0.4.4"
 torch = [
     { "platform" = 'linux', "python" = "3.12", "url" = "https://download.pytorch.org/whl/cpu/torch-2.6.0%2Bcpu-cp312-cp312-linux_x86_64.whl" },
     { "platform" = 'win64', "python" = "3.12", "url" = "https://download.pytorch.org/whl/cpu/torch-2.6.0%2Bcpu-cp312-cp312-win_amd64.whl" },

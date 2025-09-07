@@ -18,6 +18,8 @@ class AppConfig:
     MODEL_DIR_STANZA = os.getenv('MODEL_DIR_STANZA', MODEL_DIR + '/stanza')
     MODEL_DIR_SENTENCE_TRANSFORMERS = os.getenv('MODEL_DIR_SENTENCE_TRANSFORMERS', MODEL_DIR)
 
+    MODEL_CONFIG_FILE = os.getenv('MODEL_CONFIG_FILE')
+
     MODELS = {key[len('MODEL__'):]: os.environ[key] for key in os.environ.keys() if key.startswith('MODEL__')}
     PRELOAD_VECTOR_TEXT = os.getenv('PRELOAD_VECTOR_TEXT') in TRUTHY_ENV_VAL
     PRELOAD_VECTOR_CODE = os.getenv('PRELOAD_VECTOR_CODE') in TRUTHY_ENV_VAL

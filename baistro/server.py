@@ -7,7 +7,6 @@ from apiflask import APIFlask, Schema, fields
 from apispec.ext.marshmallow.field_converter import _VALID_PROPERTIES
 
 from baistro._boot import boot
-from baistro.api.api import ai_api
 from baistro.config.config import AppConfig
 
 from baistro.helper import ts
@@ -19,14 +18,28 @@ from baistro.models.vector_code import VectorCodeModel
 from baistro.models.vector_image import VectorImageModel
 from baistro.models.vector_text import VectorTextModel
 
+from baistro.api.api import ai_api
+
 # todo: https://stackoverflow.com/a/16993115/2073149
 logging.basicConfig(stream=sys.stdout, level=AppConfig.LOGGING_LEVEL)
 pil_logger = logging.getLogger('PIL')
 pil_logger.setLevel(logging.INFO)
 
+matplotlib_logger = logging.getLogger('matplotlib')
+matplotlib_logger.setLevel(logging.INFO)
+
 _VALID_PROPERTIES.add('widget')
+_VALID_PROPERTIES.add('examples')
+_VALID_PROPERTIES.add('uniqueItems')
 
 s = boot()
+
+for model_id in models.models_preload:
+    model = models.get(model_id)
+    if model.model is None:
+        raise RuntimeError(f"Model {model_id} did not initialize")
+
+    logging.info(f'preloaded {model_id} with {model.name}')
 
 if AppConfig.PRELOAD_VECTOR_TEXT:
     model = models.get(VectorTextModel.id)
@@ -52,7 +65,7 @@ if AppConfig.PRELOAD_VECTOR_IMAGE:
 app = APIFlask(
     __name__,
     title='baistro',
-    version='0.3.0',
+    version='0.4.0',
     docs_ui=AppConfig.API_DOCS_UI,
 )
 app.config['OPENAPI_VERSION'] = '3.1.0'
@@ -78,8 +91,8 @@ app.config['EXTERNAL_DOCS'] = {
 # todo: support configuring server and related openapi/flask config like base-path
 # app.config['SERVERS'] = ''
 
-#app.config['SYNC_LOCAL_SPEC'] = True
-#app.config['LOCAL_SPEC_PATH'] = 'openapi.json'
+# app.config['SYNC_LOCAL_SPEC'] = True
+# app.config['LOCAL_SPEC_PATH'] = 'openapi.json'
 
 CORS(
     app,

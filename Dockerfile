@@ -88,6 +88,8 @@ COPY ./poetry.lock /app/poetry.lock
 
 COPY ./baistro /app/baistro
 
+COPY ./config.yaml config.yaml
+
 COPY ./README.md README.md
 COPY ./LICENSE LICENSE
 

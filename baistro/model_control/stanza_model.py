@@ -35,6 +35,10 @@ class StanzaModelCache(object):
             cache_id += '|' + ('clean' if kwargs['langid_clean_text'] else 'keep')
         if 'tokenize_no_ssplit' in kwargs and kwargs['tokenize_no_ssplit']:
             cache_id += '|no_ssplit'
+        if 'tokenize_pretokenized' in kwargs and kwargs['tokenize_pretokenized']:
+            cache_id += '|pretokenized'
+        if 'processors' in kwargs and kwargs['processors']:
+            cache_id += '|' + kwargs['processors']
 
         if cache_id not in self.pipelines:
             with self.lock:

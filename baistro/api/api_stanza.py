@@ -82,6 +82,17 @@ class SentenceAnalysisRequest(Schema):
         required=True,
         metadata={
             'description': 'Input text to be analyzed. Can be a single string or a list of strings. If a list of strings is provided, each string is treated as a separate sentence, requires `no_ssplit` to be `true`.',
+            'examples': [
+                'Last summer, I spent three weeks in Italy exploring cities like Rome, Florence, and Venice. The trip was unforgettable, not only because of the historical sites but also because of the people I met along the way. In Rome, I interviewed a local tour guide named Alessandro Rossi, who had been working at the Colosseum for over fifteen years.\n\nAlessandro told me: \"Every day I see thousands of visitors from around the world. For me, the Colosseum is not just a monument; it’s a reminder of human creativity and resilience.\" His words made me reflect on how much history shapes our sense of identity.\n\nIn Florence, I attended an art workshop hosted by the Accademia di Belle Arti. There I met Professor Maria Bianchi, who specializes in Renaissance painting. She shared her perspective: \"Art is a dialogue between centuries. When students today look at works by Michelangelo or Botticelli, they are not just seeing old paintings — they are entering a conversation that started hundreds of years ago.\" I found her passion inspiring.',
+                [
+                    "Reading novels is one of my favorite ways to relax after a busy day.",
+                    "Whenever I finish work, I like to unwind with a good book, especially fiction.",
+                    "Science fiction stories inspire me to imagine futuristic worlds and technologies.",
+                    "I find that sci-fi books expand my creativity and curiosity about the universe.",
+                    "History books fascinate me because they offer insights into how societies developed.",
+                    "Learning about the past through biographies and historical accounts helps me understand the present.",
+                ],
+            ]
         },
     )
     # input = fields.Nested(validate=validators.OneOf([
@@ -131,7 +142,15 @@ def api_stanza(app: APIFlask, s: Services):
     @app.route(f'/locale-ident', methods=['POST'])
     @app.input(LocaleIdentRequest)
     @app.output(LocaleIdentResponse())
-    @app.doc(tags=[f'NLP'])
+    @app.doc(tags=[f'NLP'], description='''
+This API endpoint performs language identification on the input text.
+
+It uses Stanza's multilingual language identification model to detect the language of the provided text.
+
+**Input**: A single string of text.
+
+**Output**: The detected locale (e.g., 'en', 'de', 'fr').
+''')
     def locale_ident(json_data):
         infer_res = InferTracker()
         tracker = infer_res.tracker('stanza-lang_id')
@@ -157,7 +176,7 @@ def api_stanza(app: APIFlask, s: Services):
             doc: Document = pipe(input, 'langid')
             on_processed(tokens=doc.num_tokens)
             return {
-                '_usages': infer_res.usages,
+                'usage': infer_res.usage,
                 'outcome': {'locale': doc.lang},
             }
         except LanguageNotDownloadedError as e:
@@ -166,7 +185,15 @@ def api_stanza(app: APIFlask, s: Services):
     @app.route(f'/sentence-segments', methods=['POST'])
     @app.input(SentenceAnalysisRequest)
     @app.output(SentenceSegmentsAnalysisResponse())
-    @app.doc(tags=[f'NLP'])
+    @app.doc(tags=[f'NLP'], description='''
+This API endpoint performs sentence segmentation on the input text.
+
+It uses Stanza's tokenization pipeline to split the input text into individual sentences.
+
+**Input**: A single string of text or a list of strings. If a list is provided, `no_ssplit` should be set to `true` to treat each string as a pre-segmented sentence.
+
+**Output**: A list of segmented sentence strings.
+''')
     def sentence_segments(json_data):
         infer_res = InferTracker()
         tracker = infer_res.tracker('stanza-sentence-segments')
@@ -195,7 +222,7 @@ def api_stanza(app: APIFlask, s: Services):
                 sentence: Sentence = sentence
                 sentence_pieces.append(sentence.text)
             return {
-                '_usages': infer_res.usages,
+                'usage': infer_res.usage,
                 'outcome': {'sentence_pieces': sentence_pieces},
             }
         except LanguageNotDownloadedError as e:
@@ -204,7 +231,15 @@ def api_stanza(app: APIFlask, s: Services):
     @app.route(f'/sentence-classifications', methods=['POST'])
     @app.input(SentenceAnalysisRequest)
     @app.output(SentenceClassificationAnalysisResponse())
-    @app.doc(tags=[f'NLP'])
+    @app.doc(tags=[f'NLP'], description='''
+This API endpoint performs various NLP tasks on the input text, including tokenization, part-of-speech tagging, lemmatization, and named entity recognition.
+
+It uses Stanza's robust NLP pipeline to provide detailed linguistic annotations for each sentence.
+
+**Input**: A single string of text or a list of strings. If a list is provided, `no_ssplit` should be set to `true` to treat each string as a pre-segmented sentence.
+
+**Output**: A list of analyzed sentences, each containing tokens, multi-word tokens (MWT), plain words, and optionally entities and sentiment.
+''')
     def sentence_classifications(json_data):
         infer_res = InferTracker()
         tracker = infer_res.tracker('stanza-sentence-classifications')
@@ -220,6 +255,9 @@ def api_stanza(app: APIFlask, s: Services):
             SIMPLE_PROCESSORS[processors_id] if processors_id in SIMPLE_PROCESSORS else processors_id
         )
 
+        if not no_ssplit and isinstance(input, List):
+            raise HTTPError(400, message='When `no_ssplit` is `false`, the input must be a single string, not a list. Stanza will perform sentence splitting on the string.')
+
         try:
             on_loaded = tracker('load')
             pipe = stanza_model.pipeline(
@@ -233,6 +271,9 @@ def api_stanza(app: APIFlask, s: Services):
         except LanguageNotDownloadedError as e:
             raise HTTPError(400, message=get_language_error(e.lang))
 
+        # todo: this may fail with server error if the user didn't specify the correct pipeline module dependencies,
+        #       e.g. `lemma,ner` won't work as `tokenize,mwt` is missing with the error:
+        #       "AttributeError: 'str' object has no attribute 'get_mwt_expansions'"
         on_processed = tracker('infer')
         doc: Document = pipe(
             # todo: this was to re-parse tokenized parts, but this added incorrect whitespaces of course,
@@ -315,6 +356,6 @@ def api_stanza(app: APIFlask, s: Services):
             result_full['entities'] = [entity.to_dict() for entity in doc.entities]
 
         return {
-            '_usages': infer_res.usages,
+            'usage': infer_res.usage,
             'outcome': result_full,
         }

@@ -1,0 +1,77 @@
+models:
+    -   id: paraphrase
+        opts:
+            name: sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2
+            features: [ paraphrase ]
+            modality: [ text ]
+    -   id: text
+        #preload: true
+        opts:
+            name: sentence-transformers/all-distilroberta-v1
+            features: [ search ]
+            modality: [ text ]
+    -   id: code
+        opts:
+            name: flax-sentence-embeddings/st-codesearch-distilroberta-base
+            features: [ search ]
+            modality: [ text ]
+    -   id: image
+        opts:
+            name: sentence-transformers/clip-ViT-B-32
+            modality: [ text, image ]
+    -   id: stanza-bg
+        type: stanza
+        opts:
+            lang: bg
+    -   id: stanza-da
+        type: stanza
+        opts:
+            lang: da
+    -   id: stanza-de
+        type: stanza
+        opts:
+            lang: de
+    -   id: stanza-en
+        type: stanza
+        opts:
+            lang: en
+    -   id: stanza-es
+        type: stanza
+        opts:
+            lang: es
+    -   id: stanza-fi
+        type: stanza
+        opts:
+            lang: fi
+    -   id: stanza-fr
+        type: stanza
+        opts:
+            lang: fr
+    -   id: stanza-hu
+        type: stanza
+        opts:
+            lang: hu
+    -   id: stanza-it
+        type: stanza
+        opts:
+            lang: it
+    -   id: stanza-ja
+        type: stanza
+        opts:
+            lang: ja
+    -   id: stanza-nl
+        type: stanza
+        opts:
+            lang: nl
+    -   id: stanza-nn
+        type: stanza
+        opts:
+            lang: nn
+    -   id: stanza-pl
+        type: stanza
+        opts:
+            lang: pl
+    -   id: stanza-sv
+        type: stanza
+        opts:
+            lang: sv

@@ -1,12 +1,9 @@
-import logging
-from typing import Union, List
+from typing import Union, List, Literal
 import numpy as np
 import torch
 from sentence_transformers import SentenceTransformer
-from sentence_transformers.util import batch_to_device
+from sentence_transformers.util import batch_to_device, truncate_embeddings
 from tqdm import trange
-
-logger = logging.getLogger(__name__)
 
 
 class SentenceTransformerModelBase:
@@ -28,6 +25,11 @@ class SentenceTransformerModelBase:
         convert_to_tensor: bool = True,
         normalize_embeddings: bool = False,
         convert_to_numpy: bool = False,
+        show_progress_bar: bool = False,
+        truncate_dim: bool = False,
+        prompt_name: str = None,
+        prompt: str = None,
+        output_value: Literal["sentence_embedding", "token_embeddings"] | None = "sentence_embedding",
     ):
         device = self.transformer.device
         tokens = 0
@@ -55,10 +57,39 @@ class SentenceTransformerModelBase:
             with torch.no_grad():
                 out_features = self.transformer.forward(features)
 
-                embeddings = out_features['sentence_embedding']
-                embeddings = embeddings.detach()
-                if normalize_embeddings:
-                    embeddings = torch.nn.functional.normalize(embeddings, p=2, dim=1)
+                if truncate_dim:
+                    out_features["sentence_embedding"] = truncate_embeddings(
+                        out_features["sentence_embedding"], truncate_dim
+                    )
+
+                if output_value == "token_embeddings":
+                    embeddings = []
+                    for token_emb, attention in zip(out_features[output_value], out_features["attention_mask"]):
+                        last_mask_id = len(attention) - 1
+                        while last_mask_id > 0 and attention[last_mask_id].item() == 0:
+                            last_mask_id -= 1
+
+                        embeddings.append(token_emb[0 : last_mask_id + 1])
+                elif output_value is None:  # Return all outputs
+                    embeddings = []
+                    for idx in range(len(out_features["sentence_embedding"])):
+                        batch_item = {}
+                        for name, value in out_features.items():
+                            try:
+                                batch_item[name] = value[idx]
+                            except TypeError:
+                                # Handle non-indexable values (like prompt_length)
+                                batch_item[name] = value
+                        embeddings.append(batch_item)
+                else:  # Sentence embeddings
+                    embeddings = out_features[output_value]
+                    embeddings = embeddings.detach()
+                    if normalize_embeddings:
+                        embeddings = torch.nn.functional.normalize(embeddings, p=2, dim=1)
+
+                    # fixes for #522 and #487 to avoid oom problems on gpu with large datasets
+                    if convert_to_numpy:
+                        embeddings = embeddings.cpu()
 
                 all_embeddings.extend(embeddings)
 

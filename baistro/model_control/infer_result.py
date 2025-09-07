@@ -29,12 +29,12 @@ class ModelTracker(object):
 
 class InferTracker(object):
     def __init__(self):
-        self.usages: List[Dict] = []
+        self.usage: List[Dict] = []
 
     def tracker(self, model: str) -> ModelTracker:
         usage = {
             'model': model,
             'stats': [],
         }
-        self.usages.append(usage)
+        self.usage.append(usage)
         return ModelTracker(usage)

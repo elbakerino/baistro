@@ -8,9 +8,13 @@ from baistro._boot import Services
 from baistro.model_control.infer_result import InferTracker
 
 
-def api_sentences(app: APIFlask, s: Services):
+def api_word_occurrences(app: APIFlask, s: Services):
     @app.route(f'/sentence-word-occurrences', methods=['POST'])
-    @app.doc(tags=[f'Task: text-cluster'])
+    @app.doc(tags=['NLP'], description='''
+> [!CAUTION]
+>
+> Very simple example with a limited CountVectorizer.
+''')
     def sentence_word_occurrences():
         infer_res = InferTracker()
         tracker = infer_res.tracker('scikit')
@@ -49,7 +53,7 @@ def api_sentences(app: APIFlask, s: Services):
         on_computed()
 
         return {
-            '_usages': infer_res.usages,
+            'usage': infer_res.usage,
             'outcome': {
                 'variance': variance,
                 'sparsity': sparsity,

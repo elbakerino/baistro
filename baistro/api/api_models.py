@@ -18,7 +18,9 @@ def get_folder_size(folder_path):
 def api_models(app: APIFlask, s: Services):
     @app.route('/models', methods=['GET'])
     @app.output(ModelsResponse)
-    @app.doc(tags=['Models'])
+    @app.doc(tags=['Models'], description='''
+Returns a list of all available models and their statistics.
+''')
     def model_list():
         models_stats = {}
 

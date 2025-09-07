@@ -6,7 +6,7 @@ Some APIs around AI models.
 
 - CPU only docker setup
 - Expects preloaded models, no (annoying) auto-downloads
-- Stats about token usages (partially/WIP)
+- Stats about token usage (partially/WIP)
 - Automatic OpenAPI generation
 
 ## Tasks & Models
@@ -41,7 +41,7 @@ Clone this repository or add the service to your `docker-compose.yml`:
 ```yaml
 services:
     baistro:
-        image: ghcr.io/elbakerino/baistro:0.3.0
+        image: ghcr.io/elbakerino/baistro:0.4.0
         stop_signal: SIGINT
         environment:
             PORT: 8702
@@ -117,4 +117,4 @@ poetry install
 
 This project is distributed as **free software** under the **MIT License**, see [License](https://github.com/elbakerino/baistro/blob/main/LICENSE).
 
-© 2024 Michael Becker https://i-am-digital.eu
+© 2025 Michael Becker https://i-am-digital.eu

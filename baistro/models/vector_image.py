@@ -14,7 +14,8 @@ class VectorImageModel(ModelBase):
     url = "hugging"
     folder = f'{SENTENCE_TRANSFORMERS_HOME}/{name.replace("/", "_")}'
     # folder = f'{os.getenv("SENTENCE_TRANSFORMERS_HOME")}/{name.replace("/", "_")}'
-    tasks = ['vector-text', 'vector-image']
+    tasks = ['vector', 'vector-text', 'vector-image']
+    modality = ['text', 'image']
 
     _model = None
 
@@ -28,8 +29,13 @@ class VectorImageModel(ModelBase):
             VectorImageModel._model = SentenceTransformerModelBase(VectorImageModel.folder, local_files_only=True)
         return VectorImageModel._model
 
-    def encode(self, sentences: Union[List[str], str, Image]):
-        return self.model.encode_with_stats(sentences, convert_to_tensor=True)
+    def encode_with_stats(self, sentences: Union[List[str], str], **kwargs):
+        return self.model.encode_with_stats(sentences, **kwargs)
+
+    def encode(self, sentences: Union[List[str], str], **kwargs):
+        convert_to_tensor = kwargs.pop('convert_to_tensor', True)
+        [tokens, embeddings] = self.model.encode_with_stats(sentences, convert_to_tensor=convert_to_tensor, **kwargs)
+        return embeddings
 
     @staticmethod
     def download():

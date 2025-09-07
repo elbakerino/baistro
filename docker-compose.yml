@@ -19,6 +19,7 @@ services:
             - baistro_0_pip:/root/.cache/pip
             - ./baistro:/app/baistro
             - ./model-assets:/app/model-assets
+            - ./config.yaml:/app/config.yaml
             - ./pyproject.toml:/app/pyproject.toml
             - ./poetry.lock:/app/poetry.lock
         ports:
