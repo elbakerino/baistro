@@ -194,7 +194,7 @@ If provided, the API will compare each cluster's centroid to the embeddings of t
         metadata={
             'description': '''An optional dictionary to "pre-fit" or "fine-tune" the semantic meaning of labels using few-shot examples. This is the primary way to provide predefined labels.
 
-Provide a mapping from a label name to a list of example sentences that define that label's concept. The system will average the embeddings of these examples to create a more robust "concept vector" for each label. This concept vector is then used for matching against clusters, often yielding much better results than just using the label word itself. This is more powerful than `labels` but also more verbose. If a label exists in both `prefit_labels` and `labels`, `prefit_labels` takes precedence.''',
+Provide a mapping from a label name to a list of example sentences that define that label's concept. The system will average the embeddings of these examples to create a more robust "concept vector" for each label. This concept vector is then used for matching against clusters, often yielding much better results than just using the label word itself. This is more powerful than `labels` but also more verbose. If a label exists in both `predefined_labels` and `labels`, `predefined_labels` takes precedence.''',
             'example': {
                 'technology_innovation': [
                     "The new AI model achieved state-of-the-art results.",
@@ -1028,8 +1028,8 @@ def _process_clusters(
     top_keywords = int(keywords_options.get('top_keywords', 3))
     semantic_weight = float(keywords_options.get('semantic_weight', 0.75))
     freq_weight = float(keywords_options.get('freq_weight', 0.25))
-    predefined_labels = keywords_options.get('labels')
-    prefit_labels = keywords_options.get('predefined_labels')
+    basic_labels = keywords_options.get('labels')
+    predefined_labels = keywords_options.get('predefined_labels')
     predefined_keywords = keywords_options.get('predefined_keywords')
     thresholds = keywords_options.get('thresholds', {}) or {}
     predefined_label_threshold = float(thresholds.get('predefined_label', 0.32))
@@ -1051,11 +1051,11 @@ def _process_clusters(
     predefined_emb = None
     final_predefined_labels = []
 
-    if prefit_labels:
-        final_predefined_labels = list(prefit_labels.keys())
-        if predefined_labels:
-            # Add any labels from `labels` that are not in `prefit_labels`
-            for label in predefined_labels:
+    if predefined_labels:
+        final_predefined_labels = list(predefined_labels.keys())
+        if basic_labels:
+            # Add any labels from `labels` that are not in `predefined_labels`
+            for label in basic_labels:
                 if label not in final_predefined_labels:
                     final_predefined_labels.append(label)
         try:
@@ -1065,7 +1065,7 @@ def _process_clusters(
             label_to_indices = {}
             current_idx = 0
             for label in final_predefined_labels:
-                examples = [label] + prefit_labels.get(label, [])
+                examples = [label] + predefined_labels.get(label, [])
                 start_idx = current_idx
                 end_idx = start_idx + len(examples)
                 label_to_indices[label] = (start_idx, end_idx)
@@ -1086,11 +1086,11 @@ def _process_clusters(
             on_encode_labels(tokens=used_tokens)
         except Exception:
             predefined_emb = None
-    elif predefined_labels:
-        final_predefined_labels = predefined_labels
+    elif basic_labels:
+        final_predefined_labels = basic_labels
         try:
             on_encode_labels = tracker('encode_labels')
-            used_tokens, predefined_emb = model.encode_with_stats(predefined_labels, batch_size=256)
+            used_tokens, predefined_emb = model.encode_with_stats(basic_labels, batch_size=256)
             predefined_emb = predefined_emb / np.linalg.norm(predefined_emb, axis=1, keepdims=True)
             on_encode_labels(tokens=used_tokens)
         except Exception:
